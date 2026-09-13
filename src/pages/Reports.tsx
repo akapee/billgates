@@ -5,8 +5,8 @@ import { PlaceholderPage } from './PlaceholderPage';
 export function Reports() {
   return (
     <PlaceholderPage
-      title="Reports"
-      description="Generate laporan komprehensif: fraud summary, risk trend, provider performance, dan rekomendasi tindakan."
+      title="Laporan"
+      description="Buat laporan komprehensif: ringkasan fraud, tren risiko, kinerja penyedia layanan, dan rekomendasi tindakan."
       icon={<BarChart2 size={36} className="text-blue-400" />}
     />
   );

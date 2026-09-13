@@ -5,7 +5,7 @@ import { PlaceholderPage } from './PlaceholderPage';
 export function Settings() {
   return (
     <PlaceholderPage
-      title="Settings"
+      title="Pengaturan"
       description="Konfigurasi sistem BILL GATES: threshold deteksi, notifikasi, user management, dan integrasi sistem."
       icon={<SettingsIcon size={36} className="text-slate-400" />}
     />

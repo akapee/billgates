@@ -14,22 +14,22 @@ interface RiskBadgeProps {
 
 const riskConfig: Record<RiskLevel, { label: string; className: string; dotColor: string }> = {
   critical: {
-    label: 'CRITICAL',
+    label: 'KRITIS',
     className: 'bg-red-100 text-red-700 border border-red-200',
     dotColor: 'bg-red-500',
   },
   high: {
-    label: 'HIGH',
+    label: 'TINGGI',
     className: 'bg-orange-100 text-orange-700 border border-orange-200',
     dotColor: 'bg-orange-500',
   },
   medium: {
-    label: 'MEDIUM',
+    label: 'SEDANG',
     className: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
     dotColor: 'bg-yellow-500',
   },
   low: {
-    label: 'LOW',
+    label: 'RENDAH',
     className: 'bg-green-100 text-green-700 border border-green-200',
     dotColor: 'bg-green-500',
   },
@@ -59,22 +59,22 @@ interface SeverityBadgeProps {
 const severityConfig: Record<AlertSeverity, { emoji: string; label: string; className: string }> = {
   critical: {
     emoji: '🔴',
-    label: 'Critical',
+    label: 'Kritis',
     className: 'bg-red-100 text-red-700 border border-red-200',
   },
   high: {
     emoji: '🟠',
-    label: 'High',
+    label: 'Tinggi',
     className: 'bg-orange-100 text-orange-700 border border-orange-200',
   },
   medium: {
     emoji: '🟡',
-    label: 'Medium',
+    label: 'Sedang',
     className: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
   },
   low: {
     emoji: '🟢',
-    label: 'Low',
+    label: 'Rendah',
     className: 'bg-green-100 text-green-700 border border-green-200',
   },
 };
@@ -107,7 +107,7 @@ export function DemoBadge({ variant = 'topbar', className }: DemoBadgeProps) {
       )}>
         <span className="text-amber-500">⚠️</span>
         <span>
-          <strong>SIMULATED DATA</strong> — This prototype uses simulated healthcare claim data for demonstration purposes only.
+          <strong>DATA SIMULASI</strong> — Prototipe ini menggunakan data klaim kesehatan simulasi hanya untuk keperluan demonstrasi.
         </span>
       </div>
     );
@@ -120,7 +120,7 @@ export function DemoBadge({ variant = 'topbar', className }: DemoBadgeProps) {
       className
     )}>
       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-      DEMO MODE
+      MODE DEMO
     </span>
   );
 }
@@ -137,11 +137,11 @@ interface StatusBadgeProps {
 }
 
 const statusConfig: Record<StatusType, { label: string; className: string }> = {
-  approved: { label: 'Approved', className: 'bg-green-100 text-green-700 border border-green-200' },
-  pending: { label: 'Pending', className: 'bg-blue-100 text-blue-700 border border-blue-200' },
-  flagged: { label: 'Flagged', className: 'bg-orange-100 text-orange-700 border border-orange-200' },
-  rejected: { label: 'Rejected', className: 'bg-red-100 text-red-700 border border-red-200' },
-  under_review: { label: 'Under Review', className: 'bg-purple-100 text-purple-700 border border-purple-200' },
+  approved: { label: 'Disetujui', className: 'bg-green-100 text-green-700 border border-green-200' },
+  pending: { label: 'Menunggu', className: 'bg-blue-100 text-blue-700 border border-blue-200' },
+  flagged: { label: 'Ditandai', className: 'bg-orange-100 text-orange-700 border border-orange-200' },
+  rejected: { label: 'Ditolak', className: 'bg-red-100 text-red-700 border border-red-200' },
+  under_review: { label: 'Dalam Peninjauan', className: 'bg-purple-100 text-purple-700 border border-purple-200' },
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

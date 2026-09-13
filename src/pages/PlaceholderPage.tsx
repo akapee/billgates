@@ -33,7 +33,7 @@ export function PlaceholderPage({
         {/* Badge */}
         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 text-xs font-bold rounded-full border border-amber-200 mb-4">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-          Coming in {phase}
+          Tersedia pada {phase}
         </span>
 
         {/* Title */}
@@ -45,7 +45,7 @@ export function PlaceholderPage({
 
         {/* Features Preview */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 w-full max-w-xl">
-          {['Data Analysis', 'AI Detection', 'Report Export'].map((feature) => (
+          {['Analisis Data', 'Deteksi AI', 'Ekspor Laporan'].map((feature) => (
             <div
               key={feature}
               className="flex items-center gap-2 px-4 py-3 bg-white rounded-xl border border-slate-200 shadow-sm text-sm text-slate-500"
@@ -64,14 +64,14 @@ export function PlaceholderPage({
             icon={<ArrowLeft size={15} />}
             onClick={() => navigate('/dashboard')}
           >
-            Back to Dashboard
+            Kembali ke Dashboard
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate(-1)}
           >
-            Go Back
+            Kembali
           </Button>
         </div>
       </div>

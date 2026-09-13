@@ -13,7 +13,7 @@ import type {
 export const kpiCards: KpiCardData[] = [
   {
     id: 'total-claims',
-    label: 'Total Claims Analyzed',
+    label: 'Total Klaim Dianalisis',
     value: '12,458',
     rawValue: 12458,
     trend: 12.4,
@@ -25,7 +25,7 @@ export const kpiCards: KpiCardData[] = [
   },
   {
     id: 'high-risk',
-    label: 'High Risk Claims',
+    label: 'Klaim Risiko Tinggi',
     value: '127',
     rawValue: 127,
     trend: 8.2,
@@ -37,7 +37,7 @@ export const kpiCards: KpiCardData[] = [
   },
   {
     id: 'duplicate-billing',
-    label: 'Potential Duplicate Billing',
+    label: 'Potensi Tagihan Ganda',
     value: '43',
     rawValue: 43,
     trend: -4.6,
@@ -49,7 +49,7 @@ export const kpiCards: KpiCardData[] = [
   },
   {
     id: 'need-verification',
-    label: 'Need Verification',
+    label: 'Perlu Verifikasi',
     value: '86',
     rawValue: 86,
     trend: 5.7,
@@ -60,7 +60,7 @@ export const kpiCards: KpiCardData[] = [
   },
   {
     id: 'risk-value',
-    label: 'Potential Risk Value',
+    label: 'Potensi Nilai Risiko',
     value: 'Rp 2.4 M',
     rawValue: 2400000000,
     trend: 14.2,
@@ -78,7 +78,7 @@ export const kpiCards: KpiCardData[] = [
 
 export const riskDistribution: RiskDistributionData[] = [
   {
-    category: 'Low Risk',
+    category: 'Risiko Rendah',
     level: 'low',
     count: 9812,
     percentage: 78.8,
@@ -86,7 +86,7 @@ export const riskDistribution: RiskDistributionData[] = [
     fillColor: '#22c55e',
   },
   {
-    category: 'Medium Risk',
+    category: 'Risiko Sedang',
     level: 'medium',
     count: 2403,
     percentage: 19.3,
@@ -94,7 +94,7 @@ export const riskDistribution: RiskDistributionData[] = [
     fillColor: '#eab308',
   },
   {
-    category: 'High Risk',
+    category: 'Risiko Tinggi',
     level: 'high',
     count: 196,
     percentage: 1.6,
@@ -102,7 +102,7 @@ export const riskDistribution: RiskDistributionData[] = [
     fillColor: '#f97316',
   },
   {
-    category: 'Critical Risk',
+    category: 'Risiko Kritis',
     level: 'critical',
     count: 47,
     percentage: 0.3,
@@ -148,21 +148,21 @@ export const trendData: TrendDataset = {
 export const anomalyBreakdown: AnomalyBreakdownData[] = [
   {
     type: 'duplicate_billing',
-    label: 'Duplicate Billing',
+    label: 'Tagihan Ganda',
     count: 43,
     percentage: 22.4,
     color: '#ef4444',
   },
   {
     type: 'repeat_billing',
-    label: 'Repeat Billing',
+    label: 'Tagihan Berulang',
     count: 31,
     percentage: 16.1,
     color: '#f97316',
   },
   {
     type: 'cost_anomaly',
-    label: 'Cost Anomaly',
+    label: 'Anomali Biaya',
     count: 28,
     percentage: 14.6,
     color: '#eab308',
@@ -176,14 +176,14 @@ export const anomalyBreakdown: AnomalyBreakdownData[] = [
   },
   {
     type: 'diagnosis_anomaly',
-    label: 'Diagnosis Anomaly',
+    label: 'Anomali Diagnosis',
     count: 22,
     percentage: 11.5,
     color: '#3b82f6',
   },
   {
     type: 'procedure_anomaly',
-    label: 'Procedure Anomaly',
+    label: 'Anomali Prosedur',
     count: 19,
     percentage: 9.9,
     color: '#06b6d4',
@@ -197,7 +197,7 @@ export const anomalyBreakdown: AnomalyBreakdownData[] = [
   },
   {
     type: 'other',
-    label: 'Other',
+    label: 'Lainnya',
     count: 9,
     percentage: 4.7,
     color: '#94a3b8',
@@ -211,28 +211,28 @@ export const anomalyBreakdown: AnomalyBreakdownData[] = [
 export const quickActions: QuickActionData[] = [
   {
     id: 'review-high-risk',
-    label: 'Review High Risk Claims',
+    label: 'Tinjau Klaim Risiko Tinggi',
     icon: 'AlertTriangle',
     route: '/risk-radar',
     variant: 'danger',
   },
   {
     id: 'duplicate-detection',
-    label: 'Duplicate Detection',
+    label: 'Deteksi Tagihan Ganda',
     icon: 'Copy',
     route: '/duplicate-detection',
     variant: 'warning',
   },
   {
     id: 'verification-center',
-    label: 'Open Verification Center',
+    label: 'Buka Pusat Verifikasi',
     icon: 'CheckCircle',
     route: '/verification',
     variant: 'primary',
   },
   {
     id: 'view-reports',
-    label: 'View Reports',
+    label: 'Lihat Laporan',
     icon: 'BarChart2',
     route: '/reports',
     variant: 'secondary',

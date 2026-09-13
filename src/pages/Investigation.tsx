@@ -5,8 +5,8 @@ import { PlaceholderPage } from './PlaceholderPage';
 export function Investigation() {
   return (
     <PlaceholderPage
-      title="Investigation"
-      description="Tools investigasi mendalam: timeline klaim, cross-referensi pasien, analisis provider, dan case management."
+      title="Investigasi"
+      description="Alat investigasi mendalam: linimasa klaim, referensi silang pasien, analisis penyedia layanan, dan pengelolaan kasus."
       icon={<Search size={36} className="text-purple-400" />}
     />
   );

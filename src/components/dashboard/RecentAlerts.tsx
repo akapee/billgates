@@ -24,7 +24,7 @@ const severityConfig: Record<AlertSeverity, {
     bgColor: 'hover:bg-red-50/50',
     iconColor: 'text-red-500',
     badgeClass: 'bg-red-100 text-red-700',
-    label: 'Critical',
+    label: 'Kritis',
   },
   high: {
     emoji: '🟠',
@@ -32,7 +32,7 @@ const severityConfig: Record<AlertSeverity, {
     bgColor: 'hover:bg-orange-50/50',
     iconColor: 'text-orange-500',
     badgeClass: 'bg-orange-100 text-orange-700',
-    label: 'High',
+    label: 'Tinggi',
   },
   medium: {
     emoji: '🟡',
@@ -40,7 +40,7 @@ const severityConfig: Record<AlertSeverity, {
     bgColor: 'hover:bg-yellow-50/50',
     iconColor: 'text-yellow-500',
     badgeClass: 'bg-yellow-100 text-yellow-700',
-    label: 'Medium',
+    label: 'Sedang',
   },
   low: {
     emoji: '🟢',
@@ -48,7 +48,7 @@ const severityConfig: Record<AlertSeverity, {
     bgColor: 'hover:bg-green-50/50',
     iconColor: 'text-green-500',
     badgeClass: 'bg-green-100 text-green-700',
-    label: 'Low',
+    label: 'Rendah',
   },
 };
 
@@ -129,16 +129,16 @@ export function RecentAlerts() {
       <div className="flex items-start justify-between mb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-slate-900">Recent Alerts</h3>
+            <h3 className="text-base font-semibold text-slate-900">Peringatan Terbaru</h3>
             {criticalCount > 0 && (
               <span className="flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                {criticalCount} critical
+                {criticalCount} kritis
               </span>
             )}
           </div>
           <p className="text-sm text-slate-500 mt-0.5">
-            {recentAlerts.length} alerts in the last 24 hours
+            {recentAlerts.length} peringatan dalam 24 jam terakhir
           </p>
         </div>
         <Button
@@ -148,7 +148,7 @@ export function RecentAlerts() {
           iconPosition="right"
           onClick={() => navigate('/anomalies')}
         >
-          View All
+          Lihat Semua
         </Button>
       </div>
 
@@ -169,7 +169,7 @@ export function RecentAlerts() {
           iconPosition="right"
           onClick={() => navigate('/anomalies')}
         >
-          View All Alerts
+          Lihat Semua Peringatan
         </Button>
       </div>
     </div>

@@ -68,7 +68,7 @@ export function Button({
       {loading ? (
         <>
           <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-          <span>Loading...</span>
+          <span>Memuat...</span>
         </>
       ) : (
         <>

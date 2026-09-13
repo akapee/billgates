@@ -22,8 +22,8 @@ function CustomTooltip({ active, payload, label }: any) {
     return (
       <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-lg text-xs">
         <p className="font-semibold text-slate-900 mb-1">{item.label}</p>
-        <p className="text-slate-600">{item.count} cases detected</p>
-        <p className="text-slate-400 mt-0.5">{item.percentage}% of total anomalies</p>
+        <p className="text-slate-600">{item.count} kasus terdeteksi</p>
+        <p className="text-slate-400 mt-0.5">{item.percentage}% dari total anomali</p>
       </div>
     );
   }
@@ -37,14 +37,14 @@ function CustomTooltip({ active, payload, label }: any) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomXAxisTick({ x, y, payload }: { x?: number; y?: number; payload?: { value: string } }) {
   const shortLabels: Record<string, string> = {
-    'Duplicate Billing': 'Dup. Billing',
-    'Repeat Billing': 'Rep. Billing',
-    'Cost Anomaly': 'Cost',
+    'Tagihan Ganda': 'Tag. Ganda',
+    'Tagihan Berulang': 'Tag. Ulang',
+    'Anomali Biaya': 'Biaya',
     'Upcoding': 'Upcoding',
-    'Diagnosis Anomaly': 'Diagnosis',
-    'Procedure Anomaly': 'Procedure',
+    'Anomali Diagnosis': 'Diagnosis',
+    'Anomali Prosedur': 'Prosedur',
     'Unbundling': 'Unbundling',
-    'Other': 'Other',
+    'Lainnya': 'Lainnya',
   };
 
   if (!payload) return null;
@@ -77,14 +77,14 @@ export function AnomalyBreakdown() {
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h3 className="text-base font-semibold text-slate-900">Detected Anomalies</h3>
+          <h3 className="text-base font-semibold text-slate-900">Anomali Terdeteksi</h3>
           <p className="text-sm text-slate-500 mt-0.5">
-            {total} anomalies detected across {anomalyBreakdown.length} categories
+            {total} anomali terdeteksi dalam {anomalyBreakdown.length} kategori
           </p>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-red-50 rounded-lg border border-red-100">
           <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
-          <span className="text-xs font-semibold text-red-600">{total} Total</span>
+          <span className="text-xs font-semibold text-red-600">Total {total}</span>
         </div>
       </div>
 
@@ -109,7 +109,7 @@ export function AnomalyBreakdown() {
             axisLine={false}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
-          <Bar dataKey="count" radius={[5, 5, 0, 0]} name="Count">
+          <Bar dataKey="count" radius={[5, 5, 0, 0]} name="Jumlah">
             {anomalyBreakdown.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={0.85} />
             ))}
@@ -129,7 +129,7 @@ export function AnomalyBreakdown() {
             <span className="text-xs font-bold text-slate-700">({item.count})</span>
           </div>
         ))}
-        <span className="text-xs text-slate-400">+{anomalyBreakdown.length - 4} more</span>
+        <span className="text-xs text-slate-400">+{anomalyBreakdown.length - 4} lainnya</span>
       </div>
     </div>
   );

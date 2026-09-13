@@ -100,8 +100,8 @@ export function QuickActions() {
   return (
     <div className="card p-6">
       <div className="mb-4">
-        <h3 className="text-base font-semibold text-slate-900">Quick Actions</h3>
-        <p className="text-sm text-slate-500 mt-0.5">Shortcut ke fitur utama</p>
+        <h3 className="text-base font-semibold text-slate-900">Aksi Cepat</h3>
+        <p className="text-sm text-slate-500 mt-0.5">Pintasan ke fitur utama</p>
       </div>
       <div className="grid grid-cols-1 gap-2.5">
         {quickActions.map((action) => (

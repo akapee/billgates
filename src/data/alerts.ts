@@ -9,10 +9,10 @@ export const recentAlerts: AlertData[] = [
     id: 'ALT-001',
     severity: 'critical',
     type: 'duplicate_billing',
-    title: 'Potential Duplicate Billing',
+    title: 'Potensi Tagihan Ganda',
     claimId: 'CLM-2026-00482',
     metric: {
-      label: 'Similarity',
+      label: 'Kemiripan',
       value: '94%',
     },
     timestamp: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
@@ -22,10 +22,10 @@ export const recentAlerts: AlertData[] = [
     id: 'ALT-002',
     severity: 'high',
     type: 'cost_anomaly',
-    title: 'Cost Anomaly Detected',
+    title: 'Anomali Biaya Terdeteksi',
     claimId: 'CLM-2026-00471',
     metric: {
-      label: 'Deviation',
+      label: 'Deviasi',
       value: '+284%',
     },
     timestamp: new Date(Date.now() - 8 * 60 * 1000), // 8 minutes ago
@@ -35,10 +35,10 @@ export const recentAlerts: AlertData[] = [
     id: 'ALT-003',
     severity: 'medium',
     type: 'procedure_anomaly',
-    title: 'Unusual Procedure Pattern',
+    title: 'Pola Prosedur Tidak Wajar',
     claimId: 'CLM-2026-00463',
     metric: {
-      label: 'Risk Score',
+      label: 'Skor Risiko',
       value: '71',
     },
     timestamp: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
@@ -48,10 +48,10 @@ export const recentAlerts: AlertData[] = [
     id: 'ALT-004',
     severity: 'critical',
     type: 'upcoding',
-    title: 'Upcoding Suspected',
+    title: 'Dugaan Upcoding',
     claimId: 'CLM-2026-00458',
     metric: {
-      label: 'Risk Score',
+      label: 'Skor Risiko',
       value: '88',
     },
     timestamp: new Date(Date.now() - 23 * 60 * 1000), // 23 minutes ago
@@ -61,10 +61,10 @@ export const recentAlerts: AlertData[] = [
     id: 'ALT-005',
     severity: 'high',
     type: 'repeat_billing',
-    title: 'Repeat Billing Detected',
+    title: 'Tagihan Berulang Terdeteksi',
     claimId: 'CLM-2026-00449',
     metric: {
-      label: 'Occurrence',
+      label: 'Kejadian',
       value: '3x',
     },
     timestamp: new Date(Date.now() - 41 * 60 * 1000), // 41 minutes ago
@@ -74,10 +74,10 @@ export const recentAlerts: AlertData[] = [
     id: 'ALT-006',
     severity: 'low',
     type: 'diagnosis_anomaly',
-    title: 'Diagnosis Inconsistency',
+    title: 'Ketidaksesuaian Diagnosis',
     claimId: 'CLM-2026-00437',
     metric: {
-      label: 'Confidence',
+      label: 'Tingkat Keyakinan',
       value: '62%',
     },
     timestamp: new Date(Date.now() - 67 * 60 * 1000), // 67 minutes ago
@@ -92,40 +92,40 @@ export const recentAlerts: AlertData[] = [
 export const notifications: NotificationData[] = [
   {
     id: 'NOTIF-001',
-    title: 'Critical Alert',
-    message: 'CLM-2026-00482 — Potential Duplicate Billing (94% similarity)',
+    title: 'Peringatan Kritis',
+    message: 'CLM-2026-00482 — Potensi tagihan ganda (kemiripan 94%)',
     timestamp: new Date(Date.now() - 2 * 60 * 1000),
     read: false,
     severity: 'critical',
   },
   {
     id: 'NOTIF-002',
-    title: 'High Risk Detected',
-    message: 'CLM-2026-00471 — Cost anomaly +284% above INA-CBGs rate',
+    title: 'Risiko Tinggi Terdeteksi',
+    message: 'CLM-2026-00471 — Anomali biaya +284% di atas tarif INA-CBGs',
     timestamp: new Date(Date.now() - 8 * 60 * 1000),
     read: false,
     severity: 'high',
   },
   {
     id: 'NOTIF-003',
-    title: 'Batch Analysis Complete',
-    message: '1,240 claims analyzed — 12 new flags detected',
+    title: 'Analisis Batch Selesai',
+    message: '1.240 klaim dianalisis — 12 penanda baru terdeteksi',
     timestamp: new Date(Date.now() - 25 * 60 * 1000),
     read: false,
     severity: 'medium',
   },
   {
     id: 'NOTIF-004',
-    title: 'Report Generated',
-    message: 'Monthly fraud risk report — September 2026 is ready',
+    title: 'Laporan Dibuat',
+    message: 'Laporan risiko fraud bulanan — September 2026 siap',
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
     read: true,
     severity: 'low',
   },
   {
     id: 'NOTIF-005',
-    title: 'System Update',
-    message: 'AI detection model updated — accuracy improved to 94.7%',
+    title: 'Pembaruan Sistem',
+    message: 'Model deteksi AI diperbarui — akurasi meningkat menjadi 94,7%',
     timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
     read: true,
     severity: 'low',

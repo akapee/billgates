@@ -17,7 +17,7 @@ export function Dashboard() {
     <div className="p-6 max-w-[1600px] mx-auto">
       {/* Page Header */}
       <PageHeader
-        title="Command Center"
+        title="Pusat Kendali"
         subtitle="Monitoring dan deteksi dini potensi anomali klaim JKN — Sistem BILL GATES aktif memindai seluruh klaim masuk secara real-time."
         showDemoBanner
       />

@@ -5,8 +5,8 @@ import { PlaceholderPage } from './PlaceholderPage';
 export function DuplicateDetection() {
   return (
     <PlaceholderPage
-      title="Duplicate Detection"
-      description="Deteksi otomatis klaim duplikat menggunakan algoritma similarity matching dan pattern recognition berbasis AI."
+      title="Deteksi Tagihan Ganda"
+      description="Deteksi otomatis klaim duplikat menggunakan algoritma pencocokan kemiripan dan pengenalan pola berbasis AI."
       icon={<Copy size={36} className="text-blue-400" />}
     />
   );

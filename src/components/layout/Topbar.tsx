@@ -21,15 +21,15 @@ import type { AlertSeverity } from '../../types';
 // ─────────────────────────────────────────────
 
 const routeLabels: Record<string, { parent: string; current: string }> = {
-  '/dashboard': { parent: 'Dashboard', current: 'Command Center' },
+  '/dashboard': { parent: 'Dashboard', current: 'Pusat Kendali' },
   '/claims': { parent: 'Monitoring', current: 'Monitoring Klaim' },
-  '/duplicate-detection': { parent: 'Deteksi', current: 'Duplicate Detection' },
-  '/anomalies': { parent: 'Deteksi', current: 'Anomaly Detection' },
-  '/risk-radar': { parent: 'Deteksi', current: 'Fraud Risk Radar' },
-  '/verification': { parent: 'Investigation', current: 'Verification Center' },
-  '/investigation': { parent: 'Investigation', current: 'Investigation' },
-  '/reports': { parent: 'Analytics', current: 'Reports' },
-  '/settings': { parent: 'System', current: 'Settings' },
+  '/duplicate-detection': { parent: 'Deteksi', current: 'Deteksi Tagihan Ganda' },
+  '/anomalies': { parent: 'Deteksi', current: 'Deteksi Anomali' },
+  '/risk-radar': { parent: 'Deteksi', current: 'Radar Risiko Fraud' },
+  '/verification': { parent: 'Investigasi', current: 'Pusat Verifikasi' },
+  '/investigation': { parent: 'Investigasi', current: 'Investigasi' },
+  '/reports': { parent: 'Analitik', current: 'Laporan' },
+  '/settings': { parent: 'Sistem', current: 'Pengaturan' },
 };
 
 // ─────────────────────────────────────────────
@@ -65,10 +65,10 @@ function NotificationDropdown({ isOpen, onClose }: NotificationDropdownProps) {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-slate-900 text-sm">Notifications</h3>
+          <h3 className="font-semibold text-slate-900 text-sm">Notifikasi</h3>
           {unreadCount > 0 && (
             <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">
-              {unreadCount} new
+              {unreadCount} baru
             </span>
           )}
         </div>
@@ -106,7 +106,7 @@ function NotificationDropdown({ isOpen, onClose }: NotificationDropdownProps) {
       {/* Footer */}
       <div className="px-4 py-3 border-t border-slate-100 bg-slate-50">
         <button className="w-full text-center text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
-          View all notifications
+          Lihat semua notifikasi
         </button>
       </div>
     </div>
@@ -128,7 +128,7 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const breadcrumb = routeLabels[location.pathname] || { parent: 'Dashboard', current: 'Command Center' };
+  const breadcrumb = routeLabels[location.pathname] || { parent: 'Dashboard', current: 'Pusat Kendali' };
   const unreadCount = notifications.filter(n => !n.read).length;
 
   // Close notification dropdown on outside click
@@ -148,7 +148,7 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
       <button
         onClick={onMobileMenuOpen}
         className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-        aria-label="Open menu"
+        aria-label="Buka menu"
       >
         <Menu size={20} />
       </button>
@@ -175,7 +175,7 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
         <Search size={15} className="absolute left-3 text-slate-400 pointer-events-none" />
         <input
           type="text"
-          placeholder="Search claims..."
+          placeholder="Cari klaim..."
           value={searchValue}
           onChange={e => setSearchValue(e.target.value)}
           onFocus={() => setSearchFocused(true)}
@@ -200,7 +200,7 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
             'text-slate-500 hover:text-slate-700 hover:bg-slate-100',
             notifOpen && 'bg-slate-100 text-slate-700'
           )}
-          aria-label="Notifications"
+          aria-label="Notifikasi"
         >
           <Bell size={20} />
           {unreadCount > 0 && (
@@ -218,7 +218,7 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
           <User size={15} className="text-white" />
         </div>
         <div className="hidden sm:block">
-          <p className="text-sm font-semibold text-slate-900 leading-none">Fraud Analyst</p>
+          <p className="text-sm font-semibold text-slate-900 leading-none">Analis Fraud</p>
           <p className="text-[11px] text-slate-500 mt-0.5 leading-none">BPJS Kesehatan</p>
         </div>
         <ChevronDown size={14} className="hidden sm:block text-slate-400" />

@@ -35,27 +35,27 @@ interface NavSection {
 
 const navSections: NavSection[] = [
   {
-    section: 'MAIN',
+    section: 'UTAMA',
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
       { label: 'Monitoring Klaim', icon: Activity, path: '/claims', badge: 12 },
-      { label: 'Duplicate Detection', icon: Copy, path: '/duplicate-detection', badge: 43 },
-      { label: 'Anomaly Detection', icon: AlertTriangle, path: '/anomalies', badge: 8 },
-      { label: 'Fraud Risk Radar', icon: ScanLine, path: '/risk-radar' },
+      { label: 'Deteksi Tagihan Ganda', icon: Copy, path: '/duplicate-detection', badge: 43 },
+      { label: 'Deteksi Anomali', icon: AlertTriangle, path: '/anomalies', badge: 8 },
+      { label: 'Radar Risiko Fraud', icon: ScanLine, path: '/risk-radar' },
     ],
   },
   {
-    section: 'INVESTIGATION',
+    section: 'INVESTIGASI',
     items: [
-      { label: 'Verification Center', icon: CheckCircle, path: '/verification', badge: 86 },
-      { label: 'Investigation', icon: Search, path: '/investigation' },
+      { label: 'Pusat Verifikasi', icon: CheckCircle, path: '/verification', badge: 86 },
+      { label: 'Investigasi', icon: Search, path: '/investigation' },
     ],
   },
   {
-    section: 'ANALYTICS',
+    section: 'ANALITIK',
     items: [
-      { label: 'Reports', icon: BarChart2, path: '/reports' },
-      { label: 'Settings', icon: Settings, path: '/settings' },
+      { label: 'Laporan', icon: BarChart2, path: '/reports' },
+      { label: 'Pengaturan', icon: Settings, path: '/settings' },
     ],
   },
 ];
@@ -229,7 +229,7 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10">
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
-                <span className="text-xs text-white/90 font-medium truncate">System Active</span>
+                <span className="text-xs text-white/90 font-medium truncate">Sistem Aktif</span>
               </div>
               <span className="text-[10px] text-white/60 flex-shrink-0">v1.0-beta</span>
             </div>
@@ -247,7 +247,7 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
             'transition-all duration-200 shadow-md z-10',
             'focus:outline-none focus:ring-2 focus:ring-green-500/50'
           )}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
         >
           {collapsed ? (
             <ChevronRight size={12} />

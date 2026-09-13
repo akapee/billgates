@@ -41,15 +41,15 @@ export function LandingPage() {
           </div>
 
           <nav className="hidden md:flex items-center gap-1 bg-white/10 backdrop-blur-md p-1 rounded-full border border-white/20">
-            <a href="#" className="px-5 py-2 text-sm font-medium text-bpjs-700 bg-white rounded-full shadow-sm">Home</a>
-            <a href="#" className="px-5 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors">About</a>
-            <a href="#" className="px-5 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors">Features</a>
-            <a href="#" className="px-5 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors">Contact</a>
+            <a href="#" className="px-5 py-2 text-sm font-medium text-bpjs-700 bg-white rounded-full shadow-sm">Beranda</a>
+            <a href="#" className="px-5 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors">Tentang</a>
+            <a href="#" className="px-5 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors">Fitur</a>
+            <a href="#" className="px-5 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors">Kontak</a>
           </nav>
 
           <button className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-sm font-medium rounded-full border border-white/20 backdrop-blur-md transition-all">
             <Phone size={16} />
-            Contact Us
+            Hubungi Kami
           </button>
         </header>
 
@@ -106,8 +106,8 @@ export function LandingPage() {
                 <Shield size={24} className="text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-bold text-slate-800">Fraud Detection</p>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">Active 24/7 Monitoring</p>
+                <p className="text-sm font-bold text-slate-800">Deteksi Fraud</p>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">Monitoring Aktif 24/7</p>
               </div>
             </div>
           </div>

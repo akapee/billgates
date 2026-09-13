@@ -21,7 +21,7 @@ function CustomTooltip({ active, payload }: any) {
       <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-lg text-xs">
         <p className="font-semibold text-slate-900">{item.category}</p>
         <p className="text-slate-600 mt-0.5">
-          {item.count.toLocaleString('id-ID')} claims
+          {item.count.toLocaleString('id-ID')} klaim
         </p>
         <p className="text-slate-500">{item.percentage}%</p>
       </div>
@@ -40,10 +40,10 @@ interface RiskLegendItemProps {
 
 function RiskLegendItem({ item }: RiskLegendItemProps) {
   const levelLabels = {
-    low: 'Low Risk',
-    medium: 'Medium Risk',
-    high: 'High Risk',
-    critical: 'Critical Risk',
+    low: 'Risiko Rendah',
+    medium: 'Risiko Sedang',
+    high: 'Risiko Tinggi',
+    critical: 'Risiko Kritis',
   };
 
   return (
@@ -55,14 +55,14 @@ function RiskLegendItem({ item }: RiskLegendItemProps) {
         />
         <div>
           <p className="text-sm font-medium text-slate-700">{levelLabels[item.level]}</p>
-          <p className="text-xs text-slate-400">{item.percentage}% of total</p>
+          <p className="text-xs text-slate-400">{item.percentage}% dari total</p>
         </div>
       </div>
       <div className="text-right">
         <p className="text-sm font-bold text-slate-900">
           {item.count.toLocaleString('id-ID')}
         </p>
-        <p className="text-xs text-slate-400">claims</p>
+        <p className="text-xs text-slate-400">klaim</p>
       </div>
     </div>
   );
@@ -78,7 +78,7 @@ export function RiskOverview() {
   return (
     <div className="card p-6">
       <div className="mb-5">
-        <h3 className="text-base font-semibold text-slate-900">Claim Risk Overview</h3>
+        <h3 className="text-base font-semibold text-slate-900">Ringkasan Risiko Klaim</h3>
         <p className="text-sm text-slate-500 mt-0.5">Distribusi risiko dari total {total.toLocaleString('id-ID')} klaim</p>
       </div>
 
@@ -109,14 +109,14 @@ export function RiskOverview() {
             <span className="text-2xl font-bold text-slate-900">
               {total.toLocaleString('id-ID')}
             </span>
-            <span className="text-xs text-slate-500 font-medium">Total Claims</span>
+            <span className="text-xs text-slate-500 font-medium">Total Klaim</span>
           </div>
         </div>
 
         {/* Risk Distribution Legend */}
         <div className="flex-1 w-full lg:w-auto">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Risk Distribution</p>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Distribusi Risiko</p>
           </div>
           <div>
             {riskDistribution.map((item) => (

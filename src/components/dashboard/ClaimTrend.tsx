@@ -18,9 +18,9 @@ import type { ChartFilter } from '../../types';
 // ─────────────────────────────────────────────
 
 const FILTERS: { key: ChartFilter; label: string }[] = [
-  { key: '7d', label: '7 Days' },
-  { key: '30d', label: '30 Days' },
-  { key: '90d', label: '90 Days' },
+  { key: '7d', label: '7 Hari' },
+  { key: '30d', label: '30 Hari' },
+  { key: '90d', label: '90 Hari' },
 ];
 
 // ─────────────────────────────────────────────
@@ -68,7 +68,7 @@ export function ClaimTrend() {
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h3 className="text-base font-semibold text-slate-900">Claim Risk Trend</h3>
+          <h3 className="text-base font-semibold text-slate-900">Tren Risiko Klaim</h3>
           <p className="text-sm text-slate-500 mt-0.5">Tren volume klaim dan deteksi risiko</p>
         </div>
         {/* Filter Buttons */}
@@ -115,7 +115,7 @@ export function ClaimTrend() {
           <Line
             type="monotone"
             dataKey="totalClaims"
-            name="Total Claims"
+            name="Total Klaim"
             stroke="#3b82f6"
             strokeWidth={2.5}
             dot={false}
@@ -124,7 +124,7 @@ export function ClaimTrend() {
           <Line
             type="monotone"
             dataKey="flaggedClaims"
-            name="Flagged Claims"
+            name="Klaim Ditandai"
             stroke="#f97316"
             strokeWidth={2}
             dot={false}
@@ -134,7 +134,7 @@ export function ClaimTrend() {
           <Line
             type="monotone"
             dataKey="criticalClaims"
-            name="Critical Claims"
+            name="Klaim Kritis"
             stroke="#ef4444"
             strokeWidth={2}
             dot={false}
