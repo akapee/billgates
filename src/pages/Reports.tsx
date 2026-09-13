@@ -1,13 +1,18 @@
-import React from 'react';
-import { BarChart2 } from 'lucide-react';
-import { PlaceholderPage } from './PlaceholderPage';
+import React, { useMemo, useState } from 'react';
+import { BarChart2, Download, FileText } from 'lucide-react';
+import { claims } from '../data/claims';
+import { formatCurrency } from '../lib/utils';
 
 export function Reports() {
-  return (
-    <PlaceholderPage
-      title="Laporan"
-      description="Buat laporan komprehensif: ringkasan fraud, tren risiko, kinerja penyedia layanan, dan rekomendasi tindakan."
-      icon={<BarChart2 size={36} className="text-blue-400" />}
-    />
-  );
+  const [period, setPeriod] = useState('30 Hari Terakhir');
+  const summary = useMemo(() => ({ total: claims.length, highRisk: claims.filter(claim => claim.riskScore >= 60).length, anomalies: claims.filter(claim => claim.anomalyFlags.length > 0).length, value: claims.reduce((sum, claim) => sum + claim.amount, 0) }), []);
+  const exportReport = () => {
+    const rows = [['ID Klaim', 'Pasien', 'Faskes', 'Nilai Klaim', 'Skor Risiko', 'Status'], ...claims.map(claim => [claim.id, claim.patientName, claim.providerName, claim.amount.toString(), claim.riskScore.toString(), claim.status])];
+    const csv = rows.map(row => row.map(value => `"${value.replaceAll('"', '""')}"`).join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    const link = document.createElement('a'); link.href = url; link.download = 'laporan-klaim-bill-gates.csv'; link.click(); URL.revokeObjectURL(url);
+  };
+  return <div className="p-6 max-w-[1600px] mx-auto"><div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6"><div><h2 className="text-2xl font-bold">Laporan</h2><p className="mt-1.5 text-sm text-slate-500">Ringkasan analitik klaim dan risiko fraud untuk kebutuhan tindak lanjut.</p></div><div className="flex gap-2"><select value={period} onChange={event => setPeriod(event.target.value)} className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white"><option>7 Hari Terakhir</option><option>30 Hari Terakhir</option><option>90 Hari Terakhir</option></select><button onClick={exportReport} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white"><Download size={16} /> Ekspor CSV</button></div></div><div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6"><Metric label="Periode Laporan" value={period} /><Metric label="Total Klaim" value={summary.total.toString()} /><Metric label="Klaim Risiko Tinggi" value={summary.highRisk.toString()} color="text-orange-600" /><Metric label="Potensi Nilai Risiko" value={formatCurrency(summary.value)} color="text-emerald-600" /></div><div className="grid grid-cols-1 lg:grid-cols-2 gap-5"><section className="card p-5"><div className="flex gap-2 items-center"><BarChart2 size={20} className="text-blue-600" /><h3 className="font-semibold">Ringkasan Risiko</h3></div><div className="mt-5 space-y-4"><Progress label="Klaim beranomali" value={summary.anomalies} total={summary.total} color="bg-red-500" /><Progress label="Klaim risiko tinggi" value={summary.highRisk} total={summary.total} color="bg-orange-500" /><Progress label="Klaim risiko rendah/sedang" value={summary.total - summary.highRisk} total={summary.total} color="bg-green-500" /></div></section><section className="card p-5"><div className="flex gap-2 items-center"><FileText size={20} className="text-purple-600" /><h3 className="font-semibold">Rekomendasi Tindakan</h3></div><ul className="mt-4 space-y-3 text-sm text-slate-600"><li className="p-3 bg-red-50 rounded-lg">Prioritaskan verifikasi terhadap {summary.highRisk} klaim dengan skor risiko tinggi atau kritis.</li><li className="p-3 bg-orange-50 rounded-lg">Tindak lanjuti {summary.anomalies} klaim yang memiliki penanda anomali.</li><li className="p-3 bg-blue-50 rounded-lg">Gunakan ekspor CSV untuk dokumentasi dan analisis lanjutan.</li></ul></section></div></div>;
 }
+function Metric({ label, value, color = 'text-slate-900' }: { label: string; value: string; color?: string }) { return <div className="card p-4"><p className="text-xs text-slate-500">{label}</p><p className={`mt-1 text-xl font-bold ${color}`}>{value}</p></div>; }
+function Progress({ label, value, total, color }: { label: string; value: number; total: number; color: string }) { const percentage = total ? Math.round(value / total * 100) : 0; return <div><div className="flex justify-between text-sm mb-1"><span>{label}</span><span className="font-semibold">{value} ({percentage}%)</span></div><div className="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${color}`} style={{ width: `${percentage}%` }} /></div></div>; }

@@ -1,13 +1,15 @@
-import React from 'react';
-import { Search } from 'lucide-react';
-import { PlaceholderPage } from './PlaceholderPage';
+import React, { useMemo, useState } from 'react';
+import { Search, CalendarDays } from 'lucide-react';
+import { claims } from '../data/claims';
+import { formatCurrency } from '../lib/utils';
+import { RiskBadge } from '../components/ui/Badge';
+import type { ClaimData } from '../types';
 
 export function Investigation() {
-  return (
-    <PlaceholderPage
-      title="Investigasi"
-      description="Alat investigasi mendalam: linimasa klaim, referensi silang pasien, analisis penyedia layanan, dan pengelolaan kasus."
-      icon={<Search size={36} className="text-purple-400" />}
-    />
-  );
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState<ClaimData | null>(null);
+  const matches = useMemo(() => { const keyword = query.trim().toLowerCase(); return keyword ? claims.filter(claim => [claim.id, claim.patientId, claim.patientName, claim.providerName].some(value => value.toLowerCase().includes(keyword))) : []; }, [query]);
+  const related = selected ? claims.filter(claim => claim.id !== selected.id && (claim.patientId === selected.patientId || claim.providerName === selected.providerName)).sort((a, b) => b.date.getTime() - a.date.getTime()) : [];
+  return <div className="p-6 max-w-[1600px] mx-auto"><div className="mb-6"><h2 className="text-2xl font-bold">Investigasi</h2><p className="mt-1.5 text-sm text-slate-500">Telusuri klaim berdasarkan ID, pasien, atau fasilitas kesehatan.</p></div><div className="card p-5"><div className="relative max-w-2xl"><Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input autoFocus value={query} onChange={event => setQuery(event.target.value)} placeholder="Masukkan ID klaim, ID pasien, nama pasien, atau faskes..." className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30" /></div>{query && <div className="mt-4 border border-slate-100 rounded-xl overflow-hidden">{matches.length ? matches.slice(0, 8).map(claim => <button key={claim.id} onClick={() => setSelected(claim)} className="w-full px-4 py-3 text-left border-b border-slate-100 last:border-0 hover:bg-blue-50 flex items-center justify-between gap-3"><div><p className="font-semibold text-sm">{claim.id} · {claim.patientName}</p><p className="text-xs text-slate-400">{claim.providerName} · {claim.patientId}</p></div><RiskBadge level={claim.riskLevel} /></button>) : <p className="p-5 text-sm text-slate-500">Tidak ada data yang cocok.</p>}</div>}</div>{selected && <div className="mt-6 grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-5"><div className="card p-5"><div className="flex items-center gap-2"><Search size={20} className="text-purple-600" /><div><p className="text-xs text-slate-400">Klaim yang Diinvestigasi</p><h3 className="font-semibold">{selected.id}</h3></div></div><div className="mt-5 space-y-4 text-sm"><Detail label="Pasien" value={`${selected.patientName} (${selected.patientId})`} /><Detail label="Faskes" value={selected.providerName} /><Detail label="Diagnosis" value={`${selected.diagnosisCode} — ${selected.diagnosis}`} /><div className="grid grid-cols-2 gap-3"><Detail label="Nilai Klaim" value={formatCurrency(selected.amount)} /><Detail label="Skor Risiko" value={`${selected.riskScore}/100`} /></div><div><p className="text-xs text-slate-400 mb-2">Penanda Anomali</p>{selected.anomalyFlags.length ? <div className="flex flex-wrap gap-2">{selected.anomalyFlags.map(flag => <span key={flag} className="px-2 py-1 rounded text-xs bg-orange-50 text-orange-700">{flag.replace('_', ' ')}</span>)}</div> : <p className="text-sm text-slate-500">Tidak ada penanda anomali.</p>}</div></div></div><div className="card p-5"><div className="flex items-center gap-2"><CalendarDays size={20} className="text-blue-600" /><div><h3 className="font-semibold">Riwayat Terkait</h3><p className="text-xs text-slate-500">Klaim dari pasien atau faskes yang sama.</p></div></div><div className="mt-4 space-y-3">{related.length ? related.map(claim => <div key={claim.id} className="p-3 rounded-lg border border-slate-100"><div className="flex justify-between gap-3"><p className="font-medium text-sm">{claim.id}</p><p className="text-xs text-slate-400">{claim.date.toLocaleDateString('id-ID')}</p></div><p className="mt-1 text-xs text-slate-500">{claim.patientName} · {claim.providerName}</p><p className="mt-1 text-xs font-semibold">{formatCurrency(claim.amount)}</p></div>) : <p className="text-sm text-slate-500">Tidak ada riwayat terkait pada data simulasi.</p>}</div></div></div>}</div>;
 }
+function Detail({ label, value }: { label: string; value: string }) { return <div><p className="text-xs text-slate-400">{label}</p><p className="font-medium text-slate-800">{value}</p></div>; }
