@@ -16,6 +16,7 @@ import {
   UserCheck,
   LockKeyhole,
   Mail,
+  MapPin,
   Clock,
   AlertTriangle,
   Cpu,
@@ -112,6 +113,16 @@ const RATIO_TREND = [
   { label: 'Desember 2025 (proyeksi)', value: 111.8 },
 ];
 
+// Modul yang sudah berfungsi di prototype (Bagian 5 proposal)
+const PROTOTYPE_MODULES = [
+  'Monitoring Klaim',
+  'Deteksi Tagihan Ganda',
+  'Radar Risiko Faskes',
+  'Pusat Verifikasi',
+  'Investigasi & Riwayat',
+  'Laporan (Ekspor CSV)',
+];
+
 // Fitur nyata sesuai Bagian 3-5 proposal (bukan generic AI marketing)
 const FEATURES = [
   {
@@ -153,12 +164,12 @@ const VALIDATION_STATS = [
   { value: '42%', label: 'Klaim uji diprioritaskan otomatis ke verifikator' },
 ];
 
-// TODO: ganti dengan kontak asli tim sebelum submit final (email/no. yang benar-benar aktif)
+// Data kontak dummy untuk keperluan demo prototype — ganti dengan kontak aktif sebelum rilis produksi
 const CONTACT_INFO = [
-  { icon: Users, label: 'Ketua Tim', value: 'Nailul Authar, S.Kom.' },
-  { icon: Mail, label: 'Email Tim', value: 'GANTI-DENGAN-EMAIL-TIM-YANG-AKTIF' },
-  { icon: Target, label: 'Kompetisi', value: 'Healthkathon 2026 — Tim Gelombang Utara' },
-  { icon: Clock, label: 'Status', value: 'Proposal Peserta · Tahap Seleksi' },
+  { icon: Phone, label: 'Telepon', value: '(0322) XXX-XXXX' },
+  { icon: Mail, label: 'Email', value: 'admin@billgates.id' },
+  { icon: MapPin, label: 'Alamat', value: 'Jalan Tlogoretno, Gedung SMK Negeri 1 Brondong, Lamongan, Jawa Timur' },
+  { icon: Clock, label: 'Jam Layanan', value: 'Senin - Jumat, 08.00 - 17.00' },
 ];
 
 
@@ -584,33 +595,57 @@ export function LandingPage() {
 
       {/* Prototype / Dashboard */}
       <section id="prototype" className="scroll-mt-24 max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bpjs-50 border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-4">
-            <LayoutDashboard size={14} />
-            Prototype Fungsional
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left: copy + CTA */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bpjs-50 border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-4">
+                <LayoutDashboard size={14} />
+                Prototype Fungsional
+              </div>
+              <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-4 text-balance">
+                Command Center yang Sudah Bisa Dicoba
+              </h2>
+              <p className="text-slate-500 leading-relaxed mb-6 text-balance">
+                Bukan sekadar mockup — ini tangkapan layar prototype BILL GATES yang berjalan dengan data simulasi, lengkap dengan modul yang sudah berfungsi.
+              </p>
+
+              <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-8 max-w-md mx-auto lg:mx-0">
+                {PROTOTYPE_MODULES.map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-sm text-slate-600">
+                    <CheckCircle2 size={15} className="text-bpjs-500 shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="w-full sm:w-auto px-6 py-3.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm lg:text-base font-bold rounded-xl shadow-lg shadow-bpjs-600/25 hover:shadow-xl transition-all inline-flex items-center justify-center gap-2 group"
+              >
+                Masuk Command Center (Demo)
+                <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </button>
+              <p className="text-xs text-slate-400 mt-3">
+                *Berjalan dalam Mode Demo dengan data klaim simulasi.
+              </p>
+            </div>
+
+            {/* Right: dashboard screenshot */}
+            <div className="relative rounded-2xl overflow-hidden border border-slate-100 shadow-xl">
+              <img
+                src={`${base}images/dashboard.png`}
+                alt="Dashboard Pusat Kendali BILL GATES - Mode Demo dengan data klaim simulasi"
+                className="w-full object-cover"
+              />
+            </div>
           </div>
-          <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-3 text-balance">
-            Command Center yang Sudah Bisa Dicoba
-          </h2>
-          <p className="text-slate-500 text-balance">
-            Bukan sekadar mockup — ini tangkapan layar prototype BILL GATES yang berjalan dengan data simulasi.
-          </p>
-        </div>
 
-        <div className="relative rounded-2xl overflow-hidden border border-slate-100 shadow-xl">
-          <img
-            src={`${base}images/dashboard.png`}
-            alt="Dashboard Pusat Kendali BILL GATES - Mode Demo dengan data klaim simulasi"
-            className="w-full object-cover"
-          />
-        </div>
-
-        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-5 mt-6">
-          <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-800 leading-relaxed">
-            <span className="font-bold">Soal skala data di atas:</span> volume klaim yang tampil di dashboard (mis. 12.458 total klaim) adalah dataset demo untuk menunjukkan tampilan &amp; performa antarmuka pada skala besar, bukan klaim bahwa seluruh volume tersebut sudah melalui validasi akurasi manual. Validasi akurasi (Bagian 5) dilakukan secara terkontrol pada 24 klaim simulasi berlabel, dan akan diperluas pada fase pilot dengan data riil (Bagian 6).
-          </p>
-        </div>
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-5 mt-10">
+            <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-800 leading-relaxed">
+              <span className="font-bold">Soal skala data di atas:</span> volume klaim yang tampil di dashboard (mis. 12.458 total klaim) adalah dataset demo untuk menunjukkan tampilan &amp; performa antarmuka pada skala besar, bukan klaim bahwa seluruh volume tersebut sudah melalui validasi akurasi manual. Validasi akurasi (Bagian 5) dilakukan secara terkontrol pada 24 klaim simulasi berlabel, dan akan diperluas pada fase pilot dengan data riil (Bagian 6).
+            </p>
+          </div>
       </section>
 
       {/* Validasi */}
@@ -683,7 +718,7 @@ export function LandingPage() {
             Ada Pertanyaan Seputar BILL GATES?
           </h2>
           <p className="text-slate-500 text-balance">
-            Tim Gelombang Utara terbuka untuk berdiskusi lebih lanjut mengenai proposal BILL GATES untuk Healthkathon 2026.
+            Tim kami siap membantu Anda memahami dan mengimplementasikan sistem deteksi fraud klaim JKN.
           </p>
         </div>
 
@@ -706,6 +741,9 @@ export function LandingPage() {
                 </div>
               </div>
             ))}
+            <p className="text-xs text-slate-400 px-1">
+              *Kontak di atas adalah data dummy untuk keperluan demo prototype Healthkathon 2026.
+            </p>
           </div>
 
           {/* Contact form */}
