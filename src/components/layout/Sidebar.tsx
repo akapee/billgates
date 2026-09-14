@@ -10,6 +10,7 @@ import {
   Search,
   BarChart2,
   Settings,
+  LogOut,
   Shield,
   ChevronLeft,
   ChevronRight,
@@ -221,6 +222,26 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
               </div>
             </div>
           ))}
+
+          <div className="mt-3 pt-3 border-t border-white/10">
+            <NavLink
+              to="/"
+              onClick={onMobileClose}
+              title={collapsed ? 'Keluar' : undefined}
+              className={cn(
+                'sidebar-item group relative text-red-100 hover:bg-red-500/20 hover:text-white',
+                collapsed && 'justify-center px-2'
+              )}
+            >
+              <LogOut size={18} className="flex-shrink-0" />
+              {!collapsed && <span className="flex-1">Keluar</span>}
+              {collapsed && (
+                <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-lg transition-opacity duration-150 border border-slate-700">
+                  Keluar
+                </div>
+              )}
+            </NavLink>
+          </div>
         </nav>
 
         {/* System Status */}
