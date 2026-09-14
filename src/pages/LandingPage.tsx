@@ -30,12 +30,15 @@ import {
 const NAV_LINKS = [
   { label: 'Beranda', id: 'beranda' },
   { label: 'Tentang', id: 'tentang' },
+  { label: 'Kenapa', id: 'kenapa' },
   { label: 'Fitur', id: 'fitur' },
+  { label: 'Validasi', id: 'validasi' },
+  { label: 'Tim', id: 'tim' },
   { label: 'Kontak', id: 'kontak' },
 ];
 
 const HERO_FEATURES = [
-  { icon: Zap, label: 'Penapisan Instan\n< 30 Detik' },
+  { icon: Zap, label: 'Penapisan (Screening)\nInstan < 30 Detik' },
   { icon: ShieldCheck, label: 'Rule-based &\nExplainable' },
   { icon: BarChart3, label: 'Mendukung\nEfisiensi JKN' },
   { icon: Users, label: 'Human-in-the-Loop\nKeputusan Tetap di Tangan Verifikator' },
@@ -68,7 +71,7 @@ const BILLGATES_ADVANTAGES = [
 const FEATURES = [
   {
     icon: FileSearch,
-    title: 'Penapisan Klaim Ganda Pra-Bayar',
+    title: 'Penapisan (Screening) Klaim Ganda Pra-Bayar',
     desc: 'Setiap klaim baru direkonsiliasi terhadap basis data historis secara langsung, memberi sinyal peringatan dalam < 30 detik sebelum klaim disetujui.',
   },
   {
@@ -146,7 +149,7 @@ export function LandingPage() {
             </span>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1 rounded-full border border-slate-200">
+          <nav className="hidden lg:flex items-center gap-0.5 bg-slate-100/80 p-1 rounded-full border border-slate-200">
             {NAV_LINKS.map((link, i) => (
               <button
                 key={link.label}
@@ -154,8 +157,8 @@ export function LandingPage() {
                 onClick={() => scrollToSection(link.id)}
                 className={
                   i === 0
-                    ? 'px-5 py-2 text-sm font-semibold text-bpjs-700 bg-white rounded-full shadow-sm'
-                    : 'px-5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-full transition-colors'
+                    ? 'px-3.5 py-2 text-sm font-semibold text-bpjs-700 bg-white rounded-full shadow-sm whitespace-nowrap'
+                    : 'px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-full transition-colors whitespace-nowrap'
                 }
               >
                 {link.label}
@@ -166,7 +169,7 @@ export function LandingPage() {
           <button
             type="button"
             onClick={() => scrollToSection('kontak')}
-            className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm font-semibold rounded-full shadow-md shadow-bpjs-600/20 transition-colors"
+            className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm font-semibold rounded-full shadow-md shadow-bpjs-600/20 transition-colors shrink-0"
           >
             <Phone size={16} />
             Hubungi Kami
@@ -175,7 +178,7 @@ export function LandingPage() {
           {/* Mobile menu toggle */}
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 text-slate-700"
+            className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 text-slate-700"
             aria-label="Buka menu"
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -184,7 +187,7 @@ export function LandingPage() {
 
         {/* Mobile menu panel */}
         {menuOpen && (
-          <div className="md:hidden mt-4 flex flex-col gap-1 bg-slate-50 rounded-2xl border border-slate-200 p-2">
+          <div className="lg:hidden mt-4 flex flex-col gap-1 bg-slate-50 rounded-2xl border border-slate-200 p-2">
             {NAV_LINKS.map((link) => (
               <button
                 key={link.label}
@@ -408,7 +411,7 @@ export function LandingPage() {
                 <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0">
                   <CheckCircle2 size={20} className="text-bpjs-600" />
                 </div>
-                <h3 className="text-base font-bold text-slate-800">BILL GATES: Penapisan Pra-Bayar</h3>
+                <h3 className="text-base font-bold text-slate-800">BILL GATES: Penapisan (Screening) Pra-Bayar</h3>
               </div>
               <ul className="space-y-3">
                 {BILLGATES_ADVANTAGES.map((item) => (
