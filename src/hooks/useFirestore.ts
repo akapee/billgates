@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { collection, query, onSnapshot, DocumentData, orderBy, QueryConstraint } from 'firebase/firestore';
+import { collection, query, onSnapshot } from 'firebase/firestore';
+import type { DocumentData, QueryConstraint } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 export function useFirestore<T = DocumentData>(

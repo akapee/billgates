@@ -61,6 +61,14 @@ interface AlertCardProps {
   alert: AlertData;
 }
 
+function asDate(value: unknown): Date {
+  if (value instanceof Date) return value;
+  if (value && typeof value === 'object' && 'toDate' in value && typeof value.toDate === 'function') {
+    return value.toDate();
+  }
+  return new Date(value as string | number);
+}
+
 function AlertCard({ alert }: AlertCardProps) {
   const config = severityConfig[alert.severity];
 
@@ -109,7 +117,7 @@ function AlertCard({ alert }: AlertCardProps) {
       {/* Timestamp */}
       <div className="flex items-center gap-1 text-xs text-slate-400 flex-shrink-0 mt-0.5">
         <Clock size={11} />
-        <span>{formatRelativeTime(alert.timestamp)}</span>
+        <span>{formatRelativeTime(asDate(alert.timestamp))}</span>
       </div>
     </div>
   );
@@ -133,8 +141,8 @@ export function RecentAlerts() {
 
   // Sort by timestamp descending
   const sortedAlerts = [...recentAlerts].sort((a, b) => {
-    const timeA = typeof a.timestamp?.toDate === 'function' ? a.timestamp.toDate().getTime() : new Date(a.timestamp).getTime();
-    const timeB = typeof b.timestamp?.toDate === 'function' ? b.timestamp.toDate().getTime() : new Date(b.timestamp).getTime();
+    const timeA = asDate(a.timestamp).getTime();
+    const timeB = asDate(b.timestamp).getTime();
     return timeB - timeA;
   });
 
