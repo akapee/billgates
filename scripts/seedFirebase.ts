@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, deleteDoc, getDocs } from "firebase/firestore";
+import { getFirestore, collection, addDoc, deleteDoc, getDocs, doc, setDoc } from "firebase/firestore";
 import * as dotenv from "dotenv";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 // Resolving paths to work with ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
 
 // Load .env.local
 dotenv.config({ path: resolve(__dirname, '../.env.local') });
@@ -31,6 +32,16 @@ import { recentAlerts, notifications } from '../src/data/alerts';
 import { claims } from '../src/data/claims';
 import { kpiCards, riskDistribution, anomalyBreakdown, quickActions } from '../src/data/dashboard';
 
+const appSettings = {
+  highRisk: 60,
+  criticalRisk: 80,
+  duplicateSimilarity: 85,
+  email: true,
+  browser: true,
+  weekly: false,
+  compact: false,
+};
+
 async function clearCollection(collectionName: string) {
   console.log(`Clearing existing data in [${collectionName}]...`);
   const snapshot = await getDocs(collection(db, collectionName));
@@ -54,24 +65,27 @@ async function seedData() {
   // 2. Insert data
   console.log("Inserting Alerts...");
   for (const item of recentAlerts) await addDoc(collection(db, 'alerts'), item);
-  
+
   console.log("Inserting Notifications...");
   for (const item of notifications) await addDoc(collection(db, 'notifications'), item);
-  
+
   console.log("Inserting Claims...");
   for (const item of claims) await addDoc(collection(db, 'claims'), item);
-  
+
   console.log("Inserting KPI Cards...");
   for (const item of kpiCards) await addDoc(collection(db, 'kpi_cards'), item);
-  
+
   console.log("Inserting Risk Distribution...");
   for (const item of riskDistribution) await addDoc(collection(db, 'risk_distribution'), item);
-  
+
   console.log("Inserting Anomaly Breakdown...");
   for (const item of anomalyBreakdown) await addDoc(collection(db, 'anomaly_breakdown'), item);
-  
+
   console.log("Inserting Quick Actions...");
   for (const item of quickActions) await addDoc(collection(db, 'quick_actions'), item);
+
+  console.log("Inserting App Settings...");
+  await setDoc(doc(db, 'app_settings', 'default'), appSettings);
 
   console.log("✅ Seeding completed successfully!");
   process.exit(0);
