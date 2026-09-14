@@ -5,6 +5,7 @@ import { recentAlerts } from '../../data/alerts';
 import { cn, formatRelativeTime } from '../../lib/utils';
 import { Button } from '../ui/Button';
 import type { AlertData, AlertSeverity } from '../../types';
+import { useFirestore } from '../../hooks/useFirestore';
 
 // ─────────────────────────────────────────────
 // Severity Config
@@ -120,8 +121,25 @@ function AlertCard({ alert }: AlertCardProps) {
 
 export function RecentAlerts() {
   const navigate = useNavigate();
-  const displayAlerts = recentAlerts.slice(0, 5);
-  const criticalCount = recentAlerts.filter(a => a.severity === 'critical').length;
+  const { data: recentAlerts, loading } = useFirestore<AlertData>('alerts');
+
+  if (loading) {
+    return (
+      <div className="card p-6 flex justify-center items-center min-h-[300px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Sort by timestamp descending
+  const sortedAlerts = [...recentAlerts].sort((a, b) => {
+    const timeA = typeof a.timestamp?.toDate === 'function' ? a.timestamp.toDate().getTime() : new Date(a.timestamp).getTime();
+    const timeB = typeof b.timestamp?.toDate === 'function' ? b.timestamp.toDate().getTime() : new Date(b.timestamp).getTime();
+    return timeB - timeA;
+  });
+
+  const displayAlerts = sortedAlerts.slice(0, 5);
+  const criticalCount = sortedAlerts.filter(a => a.severity === 'critical').length;
 
   return (
     <div className="card p-6">
@@ -138,7 +156,7 @@ export function RecentAlerts() {
             )}
           </div>
           <p className="text-sm text-slate-500 mt-0.5">
-            {recentAlerts.length} peringatan dalam 24 jam terakhir
+            {sortedAlerts.length} peringatan dalam 24 jam terakhir
           </p>
         </div>
         <Button
@@ -154,9 +172,13 @@ export function RecentAlerts() {
 
       {/* Alert List */}
       <div className="space-y-2">
-        {displayAlerts.map((alert) => (
-          <AlertCard key={alert.id} alert={alert} />
-        ))}
+        {displayAlerts.length === 0 ? (
+          <p className="text-sm text-slate-500 text-center py-4">Tidak ada peringatan.</p>
+        ) : (
+          displayAlerts.map((alert) => (
+            <AlertCard key={alert.id} alert={alert} />
+          ))
+        )}
       </div>
 
       {/* View All Button */}

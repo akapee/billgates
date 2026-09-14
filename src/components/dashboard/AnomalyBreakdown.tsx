@@ -9,8 +9,9 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import { anomalyBreakdown } from '../../data/dashboard';
+import { useFirestore } from '../../hooks/useFirestore';
 import type { AnomalyBreakdownData } from '../../types';
+import { Loader2 } from 'lucide-react';
 
 // ─────────────────────────────────────────────
 // Custom Tooltip
@@ -70,7 +71,18 @@ function CustomXAxisTick({ x, y, payload }: { x?: number; y?: number; payload?: 
 // ─────────────────────────────────────────────
 
 export function AnomalyBreakdown() {
-  const total = anomalyBreakdown.reduce((sum, d) => sum + d.count, 0);
+  const { data: anomalyBreakdown, loading } = useFirestore<AnomalyBreakdownData>('anomaly_breakdown');
+
+  if (loading) {
+    return (
+      <div className="card p-6 flex justify-center items-center h-[360px]">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  const sortedData = [...anomalyBreakdown].sort((a, b) => b.count - a.count);
+  const total = sortedData.reduce((sum, d) => sum + d.count, 0);
 
   return (
     <div className="card p-6">
@@ -79,7 +91,7 @@ export function AnomalyBreakdown() {
         <div>
           <h3 className="text-base font-semibold text-slate-900">Anomali Terdeteksi</h3>
           <p className="text-sm text-slate-500 mt-0.5">
-            {total} anomali terdeteksi dalam {anomalyBreakdown.length} kategori
+            {total} anomali terdeteksi dalam {sortedData.length} kategori
           </p>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-red-50 rounded-lg border border-red-100">
@@ -91,7 +103,7 @@ export function AnomalyBreakdown() {
       {/* Bar Chart */}
       <ResponsiveContainer width="100%" height={220}>
         <BarChart
-          data={anomalyBreakdown}
+          data={sortedData}
           margin={{ top: 5, right: 5, left: -25, bottom: 20 }}
           barSize={28}
         >
@@ -110,7 +122,7 @@ export function AnomalyBreakdown() {
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
           <Bar dataKey="count" radius={[5, 5, 0, 0]} name="Jumlah">
-            {anomalyBreakdown.map((entry, index) => (
+            {sortedData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={0.85} />
             ))}
           </Bar>
@@ -119,7 +131,7 @@ export function AnomalyBreakdown() {
 
       {/* Legend Pills */}
       <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
-        {anomalyBreakdown.slice(0, 4).map((item) => (
+        {sortedData.slice(0, 4).map((item) => (
           <div key={item.type} className="flex items-center gap-1.5">
             <span
               className="w-2.5 h-2.5 rounded-full flex-shrink-0"
@@ -129,7 +141,9 @@ export function AnomalyBreakdown() {
             <span className="text-xs font-bold text-slate-700">({item.count})</span>
           </div>
         ))}
-        <span className="text-xs text-slate-400">+{anomalyBreakdown.length - 4} lainnya</span>
+        {sortedData.length > 4 && (
+          <span className="text-xs text-slate-400">+{sortedData.length - 4} lainnya</span>
+        )}
       </div>
     </div>
   );

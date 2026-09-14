@@ -6,9 +6,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { riskDistribution } from '../../data/dashboard';
+import { useFirestore } from '../../hooks/useFirestore';
 import { cn } from '../../lib/utils';
 import type { RiskDistributionData } from '../../types';
+import { Loader2 } from 'lucide-react';
 
 // ─────────────────────────────────────────────
 // Custom Tooltip
@@ -73,6 +74,16 @@ function RiskLegendItem({ item }: RiskLegendItemProps) {
 // ─────────────────────────────────────────────
 
 export function RiskOverview() {
+  const { data: riskDistribution, loading } = useFirestore<RiskDistributionData>('risk_distribution');
+
+  if (loading) {
+    return (
+      <div className="card p-6 flex justify-center items-center h-[280px]">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   const total = riskDistribution.reduce((sum, d) => sum + d.count, 0);
 
   return (

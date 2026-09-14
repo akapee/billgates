@@ -6,13 +6,17 @@ import { ClaimTrend } from '../components/dashboard/ClaimTrend';
 import { AnomalyBreakdown } from '../components/dashboard/AnomalyBreakdown';
 import { RecentAlerts } from '../components/dashboard/RecentAlerts';
 import { QuickActions } from '../components/dashboard/QuickActions';
-import { kpiCards } from '../data/dashboard';
+import { useFirestore } from '../hooks/useFirestore';
+import type { KpiCardData } from '../types';
+import { Loader2 } from 'lucide-react';
 
 // ─────────────────────────────────────────────
 // Dashboard Page
 // ─────────────────────────────────────────────
 
 export function Dashboard() {
+  const { data: kpiCards, loading } = useFirestore<KpiCardData>('kpi_cards');
+
   return (
     <div className="p-6 max-w-[1600px] mx-auto">
       {/* Page Header */}
@@ -23,11 +27,15 @@ export function Dashboard() {
       />
 
       {/* KPI Cards — 5 columns responsive */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-        {kpiCards.map((card) => (
-          <KpiCard key={card.id} data={card} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-10"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
+      ) : (
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+          {kpiCards.map((card) => (
+            <KpiCard key={card.id} data={card} />
+          ))}
+        </div>
+      )}
 
       {/* Row 2: Risk Overview + Claim Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">

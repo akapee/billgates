@@ -5,8 +5,9 @@ import {
   Copy,
   CheckCircle,
   BarChart2,
+  Loader2,
 } from 'lucide-react';
-import { quickActions } from '../../data/dashboard';
+import { useFirestore } from '../../hooks/useFirestore';
 import { cn } from '../../lib/utils';
 import type { QuickActionData } from '../../types';
 
@@ -96,6 +97,18 @@ function QuickActionButton({ action, onNavigate }: QuickActionButtonProps) {
 
 export function QuickActions() {
   const navigate = useNavigate();
+  const { data: quickActions, loading } = useFirestore<QuickActionData>('quick_actions');
+
+  if (loading) {
+    return (
+      <div className="card p-6 flex justify-center items-center h-[300px]">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  // Sort by id or a specific logic if needed, here we just use it as it comes
+  const sortedActions = [...quickActions].sort((a, b) => a.id.localeCompare(b.id));
 
   return (
     <div className="card p-6">
@@ -104,7 +117,7 @@ export function QuickActions() {
         <p className="text-sm text-slate-500 mt-0.5">Pintasan ke fitur utama</p>
       </div>
       <div className="grid grid-cols-1 gap-2.5">
-        {quickActions.map((action) => (
+        {sortedActions.map((action) => (
           <QuickActionButton
             key={action.id}
             action={action}
