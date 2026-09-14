@@ -1,20 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { Copy, CheckCircle2, Search } from 'lucide-react';
-import { useClaims, type DatabaseClaim } from '../hooks/useClaims';
+import { claims } from '../data/claims';
 import { formatCurrency } from '../lib/utils';
 import { RiskBadge } from '../components/ui/Badge';
 import { findDuplicateCandidates } from '../lib/detection';
-import { updateDocument } from '../services/firebase/db';
 
 // Kandidat duplikat dihitung dari algoritma similarity (ID Pasien, ICD-10,
 // jenis tindakan, rentang waktu) — bukan pasangan acak.
-type ReviewableClaim = DatabaseClaim & { duplicateReviewed?: boolean };
+const candidates = findDuplicateCandidates(claims, 50);
 
 export function DuplicateDetection() {
-  const { claims, loading, error } = useClaims();
   const [query, setQuery] = useState('');
-  const [savingId, setSavingId] = useState<string | null>(null);
-  const candidates = useMemo(() => findDuplicateCandidates(claims, 50), [claims]);
+  const [reviewed, setReviewed] = useState<string[]>([]);
   const visibleCandidates = useMemo(
     () =>
       candidates.filter((item) =>
@@ -22,14 +19,9 @@ export function DuplicateDetection() {
           value.toLowerCase().includes(query.toLowerCase())
         )
       ),
-    [candidates, query]
+    [query]
   );
-  const reviewedCount = candidates.filter(item => (item.claim as ReviewableClaim).duplicateReviewed).length;
-  const review = async (claim: ReviewableClaim) => {
-    setSavingId(claim.firestoreId);
-    try { await updateDocument('claims', claim.firestoreId, { duplicateReviewed: true, duplicateReviewedAt: new Date() }); }
-    finally { setSavingId(null); }
-  };
+  const review = (id: string) => setReviewed((current) => (current.includes(id) ? current : [...current, id]));
 
   return (
     <div className="p-6 max-w-[1600px] mx-auto">
@@ -40,14 +32,14 @@ export function DuplicateDetection() {
           rentang waktu pengajuan — perlu diverifikasi oleh analis sebelum klaim disetujui.
         </p>
       </div>
-      {error ? <div className="card p-5 text-sm text-red-700 bg-red-50">Gagal memuat Firestore: {error}</div> : loading ? <div className="card p-10 text-center text-sm text-slate-500">Memuat kandidat dari Firestore...</div> : <><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Metric label="Kandidat Ditemukan" value={candidates.length.toString()} color="text-red-600" />
         <Metric
           label="Belum Ditinjau"
-          value={(candidates.length - reviewedCount).toString()}
+          value={(candidates.length - reviewed.length).toString()}
           color="text-orange-600"
         />
-        <Metric label="Sudah Ditinjau" value={reviewedCount.toString()} color="text-emerald-600" />
+        <Metric label="Sudah Ditinjau" value={reviewed.length.toString()} color="text-emerald-600" />
       </div>
       <div className="card overflow-hidden">
         <div className="p-4 border-b border-slate-100">
@@ -63,7 +55,7 @@ export function DuplicateDetection() {
         </div>
         <div className="divide-y divide-slate-100">
           {visibleCandidates.map((item) => {
-            const done = (item.claim as ReviewableClaim).duplicateReviewed;
+            const done = reviewed.includes(item.claim.id);
             return (
               <div
                 key={item.claim.id}
@@ -106,11 +98,10 @@ export function DuplicateDetection() {
                     </span>
                   ) : (
                     <button
-                      disabled={savingId === (item.claim as ReviewableClaim).firestoreId}
-                      onClick={() => review(item.claim as ReviewableClaim)}
+                      onClick={() => review(item.claim.id)}
                       className="px-3 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
                     >
-                      {savingId === (item.claim as ReviewableClaim).firestoreId ? 'Menyimpan...' : 'Tinjau Kandidat'}
+                      Tinjau Kandidat
                     </button>
                   )}
                 </div>
@@ -121,7 +112,7 @@ export function DuplicateDetection() {
         {visibleCandidates.length === 0 && (
           <p className="p-10 text-center text-sm text-slate-500">Kandidat tidak ditemukan.</p>
         )}
-      </div></>}
+      </div>
     </div>
   );
 }

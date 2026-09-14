@@ -9,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { useClaims } from '../../hooks/useClaims';
+import { trendData } from '../../data/dashboard';
 import { cn } from '../../lib/utils';
 import type { ChartFilter } from '../../types';
 
@@ -54,16 +54,7 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export function ClaimTrend() {
   const [activeFilter, setActiveFilter] = useState<ChartFilter>('30d');
-  const { claims } = useClaims();
-  const days = activeFilter === '7d' ? 7 : activeFilter === '30d' ? 30 : 90;
-  const data = React.useMemo(() => {
-    const start = new Date(); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - days + 1);
-    return Array.from({ length: days }, (_, index) => {
-      const date = new Date(start); date.setDate(start.getDate() + index);
-      const sameDay = claims.filter(claim => claim.date.toDateString() === date.toDateString());
-      return { date: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }), totalClaims: sameDay.length, flaggedClaims: sameDay.filter(claim => claim.riskScore >= 60).length, criticalClaims: sameDay.filter(claim => claim.riskScore >= 80).length };
-    });
-  }, [claims, days]);
+  const data = trendData[activeFilter];
 
   // For 90d, sample every 3rd point to avoid overcrowding
   const displayData = activeFilter === '90d'
