@@ -11,7 +11,6 @@ import {
   BarChart2,
   Settings,
   LogOut,
-  Shield,
   ChevronLeft,
   ChevronRight,
   X,
@@ -161,11 +160,13 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
           collapsed ? 'px-3 py-4 justify-center' : 'px-4 py-4'
         )}>
           <div className="flex items-center gap-3 min-w-0">
-            {/* Shield Icon */}
+            {/* Brand Logo */}
             <div className="relative flex-shrink-0">
-              <div className="w-9 h-9 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center">
-                <Shield size={20} className="text-white" />
-              </div>
+              <img
+                src={`${import.meta.env.BASE_URL}images/logo.png`}
+                alt="Logo BILL GATES"
+                className="w-9 h-9 rounded-xl object-contain bg-white shadow-sm"
+              />
               <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-[#0f1a3e] animate-pulse" />
             </div>
 
