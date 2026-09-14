@@ -1,13 +1,20 @@
-import React from 'react';
-import { Settings as SettingsIcon } from 'lucide-react';
-import { PlaceholderPage } from './PlaceholderPage';
+import React, { useEffect, useState } from 'react';
+import { Bell, CheckCircle2, RotateCcw, Save, Settings2, ShieldAlert } from 'lucide-react';
+
+type SettingsData = { highRisk: number; criticalRisk: number; duplicateSimilarity: number; email: boolean; browser: boolean; weekly: boolean; compact: boolean };
+const storageKey = 'bill-gates-settings';
+const defaults: SettingsData = { highRisk: 60, criticalRisk: 80, duplicateSimilarity: 85, email: true, browser: true, weekly: false, compact: false };
+const load = (): SettingsData => { try { return { ...defaults, ...JSON.parse(localStorage.getItem(storageKey) || '{}') }; } catch { return defaults; } };
 
 export function Settings() {
-  return (
-    <PlaceholderPage
-      title="Pengaturan"
-      description="Konfigurasi sistem BILL GATES: threshold deteksi, notifikasi, user management, dan integrasi sistem."
-      icon={<SettingsIcon size={36} className="text-slate-400" />}
-    />
-  );
+  const [settings, setSettings] = useState<SettingsData>(load);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { if (!saved) return; const timer = window.setTimeout(() => setSaved(false), 2500); return () => window.clearTimeout(timer); }, [saved]);
+  const set = <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => setSettings(current => ({ ...current, [key]: value }));
+  const save = () => { localStorage.setItem(storageKey, JSON.stringify(settings)); setSaved(true); };
+  const reset = () => { setSettings(defaults); localStorage.removeItem(storageKey); };
+  return <div className="p-6 max-w-[1100px] mx-auto"><div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6"><div><h2 className="text-2xl font-bold text-slate-900">Pengaturan</h2><p className="mt-1.5 text-sm text-slate-500">Atur sensitivitas deteksi dan preferensi notifikasi BILL GATES.</p></div><div className="flex gap-2"><button onClick={reset} className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"><RotateCcw size={16} /> Atur Ulang</button><button onClick={save} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg"><Save size={16} /> Simpan</button></div></div>{saved && <div className="mb-5 flex items-center gap-2 p-3 rounded-lg bg-green-50 text-green-700 text-sm font-medium"><CheckCircle2 size={17} /> Pengaturan berhasil disimpan di perangkat ini.</div>}<div className="grid grid-cols-1 lg:grid-cols-2 gap-5"><section className="card p-5"><Title icon={<ShieldAlert size={20} />} title="Ambang Deteksi" subtitle="Tentukan sensitivitas pemantauan klaim." /><div className="mt-5 space-y-5"><Range label="Risiko Tinggi" value={settings.highRisk} min={30} max={79} onChange={value => set('highRisk', value)} /><Range label="Risiko Kritis" value={settings.criticalRisk} min={80} max={100} onChange={value => set('criticalRisk', value)} /><Range label="Kemiripan Tagihan Ganda" value={settings.duplicateSimilarity} min={50} max={100} onChange={value => set('duplicateSimilarity', value)} /></div></section><section className="card p-5"><Title icon={<Bell size={20} />} title="Notifikasi" subtitle="Pilih pembaruan yang ingin diterima." /><div className="mt-4 divide-y divide-slate-100"><Toggle label="Notifikasi email" checked={settings.email} onChange={value => set('email', value)} /><Toggle label="Notifikasi browser" checked={settings.browser} onChange={value => set('browser', value)} /><Toggle label="Laporan mingguan" checked={settings.weekly} onChange={value => set('weekly', value)} /></div></section><section className="card p-5 lg:col-span-2"><Title icon={<Settings2 size={20} />} title="Tampilan" subtitle="Sesuaikan ruang kerja Anda." /><div className="mt-4 max-w-xl"><Toggle label="Sidebar ringkas" checked={settings.compact} onChange={value => set('compact', value)} /></div></section></div></div>;
 }
+function Title({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) { return <div className="flex gap-3"><span className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600">{icon}</span><div><h3 className="font-semibold text-slate-900">{title}</h3><p className="mt-0.5 text-xs text-slate-500">{subtitle}</p></div></div>; }
+function Range({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void }) { return <div><div className="flex justify-between"><p className="text-sm font-medium text-slate-800">{label}</p><span className="text-sm font-bold text-blue-700">{value}%</span></div><input className="mt-3 w-full accent-blue-600" type="range" min={min} max={max} value={value} onChange={event => onChange(Number(event.target.value))} /></div>; }
+function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) { return <div className="flex items-center justify-between gap-5 py-4"><p className="text-sm font-medium text-slate-800">{label}</p><button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className={`relative w-11 h-6 rounded-full transition-colors ${checked ? 'bg-blue-600' : 'bg-slate-300'}`}><span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} /></button></div>; }
