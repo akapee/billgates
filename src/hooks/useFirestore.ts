@@ -21,7 +21,7 @@ export function useFirestore<T = DocumentData>(
       (snapshot) => {
         const results: T[] = [];
         snapshot.forEach((doc) => {
-          results.push({ id: doc.id, ...doc.data() } as T);
+          results.push({ firestoreId: doc.id, ...doc.data() } as T);
         });
         setData(results);
         setLoading(false);
