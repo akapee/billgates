@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronRight,
@@ -14,7 +14,6 @@ import {
   FileSearch,
   LayoutDashboard,
   UserCheck,
-  FileClock,
   LockKeyhole,
   Mail,
   MapPin,
@@ -22,6 +21,10 @@ import {
   AlertTriangle,
   Cpu,
   CheckCircle2,
+  ArrowUp,
+  XCircle,
+  Percent,
+  TrendingUp,
 } from 'lucide-react';
 
 const NAV_LINKS = [
@@ -32,50 +35,74 @@ const NAV_LINKS = [
 ];
 
 const HERO_FEATURES = [
-  { icon: Zap, label: 'Deteksi Instan\n< 30 Detik' },
-  { icon: ShieldCheck, label: 'Akurasi Tinggi\ndengan AI' },
+  { icon: Zap, label: 'Penapisan Instan\n< 30 Detik' },
+  { icon: ShieldCheck, label: 'Rule-based &\nExplainable' },
   { icon: BarChart3, label: 'Mendukung\nEfisiensi JKN' },
   { icon: Users, label: 'Human-in-the-Loop\nKeputusan Tetap di Tangan Verifikator' },
 ];
 
+// Skala masalah yang mendasari BILL GATES (Bagian 2 — Masalah & Urgensi)
 const ABOUT_STATS = [
-  { value: '2.481', label: 'Klaim Dianalisis' },
-  { value: '99,3%', label: 'Akurasi Deteksi' },
-  { value: '34', label: 'Provinsi Terjangkau' },
-  { value: '2.842', label: 'Faskes Terhubung' },
+  { value: '175.774', label: 'Klaim FKRTL terindikasi fraud (KPK, per Juni 2015)' },
+  { value: 'Rp440 M', label: 'Nilai klaim bermasalah pada periode yang sama' },
+  { value: 'Rp20 T', label: 'Estimasi kerugian fraud kesehatan nasional / tahun (KPK, 2024)' },
+  { value: '106,6%', label: 'Rasio klaim JKN terhadap iuran, April 2025 (Kompas.id)' },
 ];
 
+// Perbandingan model pasca-bayar vs pra-bayar (Bagian 2 — Urgensi Pencegahan)
+const AUDIT_ISSUES = [
+  'Dana sudah cair ke faskes sebelum masalah terdeteksi',
+  'Proses penarikan kembali dana rumit & berpotensi sengketa hukum',
+  'Verifikator memeriksa riwayat klaim secara manual — memakan waktu',
+  'Klaim ganda baru ketahuan saat audit berkala, bukan saat pengajuan',
+];
+
+const BILLGATES_ADVANTAGES = [
+  'Klaim disaring otomatis sebelum disetujui, bukan setelah dibayar',
+  'Sinyal risiko & alasannya muncul dalam hitungan detik',
+  'Verifikator fokus hanya pada klaim berisiko tinggi/kritis',
+  'Dana JKN tidak sempat keluar untuk klaim yang terindikasi bermasalah',
+];
+
+// Fitur nyata sesuai Bagian 3-5 proposal (bukan generic AI marketing)
 const FEATURES = [
   {
     icon: FileSearch,
-    title: 'Deteksi Klaim Ganda Real-time',
-    desc: 'Memindai setiap klaim yang masuk secara otomatis untuk menemukan indikasi duplikasi sebelum klaim dibayarkan.',
+    title: 'Penapisan Klaim Ganda Pra-Bayar',
+    desc: 'Setiap klaim baru direkonsiliasi terhadap basis data historis secara langsung, memberi sinyal peringatan dalam < 30 detik sebelum klaim disetujui.',
   },
   {
-    icon: BarChart3,
-    title: 'Analisis Pola Anomali AI',
-    desc: 'Model AI mempelajari pola klaim historis untuk mengenali pola tidak wajar dan potensi fraud secara dini.',
+    icon: Percent,
+    title: 'Similarity Scoring yang Transparan',
+    desc: 'Skor kemiripan 0–100 dihitung dari ID pasien, kode ICD-10, jenis tindakan, rentang waktu, faskes, dan nilai klaim — rule-based & explainable, bukan black-box.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Deteksi Indikasi Upcoding',
+    desc: 'Selain klaim ganda, sistem menandai deviasi biaya per diagnosis sebagai sinyal tambahan potensi upcoding.',
   },
   {
     icon: LayoutDashboard,
     title: 'Dashboard Command Center',
-    desc: 'Pantau tren klaim, distribusi risiko, dan status verifikasi dalam satu tampilan yang komprehensif.',
+    desc: 'Monitoring Klaim, Deteksi Tagihan Ganda, Radar Risiko Faskes, Pusat Verifikasi, Investigasi, dan Laporan dalam satu alur kerja verifikator.',
   },
   {
     icon: UserCheck,
     title: 'Human-in-the-Loop',
-    desc: 'Rekomendasi dari sistem tetap diverifikasi oleh petugas sebelum keputusan akhir diambil.',
-  },
-  {
-    icon: FileClock,
-    title: 'Riwayat & Audit Trail',
-    desc: 'Setiap proses deteksi dan verifikasi tercatat rapi sehingga mudah ditelusuri kapan pun dibutuhkan.',
+    desc: 'AI hanya berperan sebagai instrumen pendukung keputusan — persetujuan, penolakan, atau peninjauan ulang klaim tetap di tangan verifikator BPJS.',
   },
   {
     icon: LockKeyhole,
-    title: 'Keamanan Data Terjamin',
-    desc: 'Data klaim dan pasien dienkripsi serta diproses sesuai standar keamanan data kesehatan.',
+    title: 'Privasi Data Terjamin',
+    desc: 'Pengembangan & pengujian 100% memakai data sintetis/anonim, tanpa menyimpan data riil peserta JKN tanpa enkripsi & izin resmi — selaras UU PDP.',
   },
+];
+
+// Hasil uji internal (Bagian 5 — Validasi), dengan disclaimer jujur seperti di proposal
+const VALIDATION_STATS = [
+  { value: '100%', label: 'Pasangan phantom/repeat billing uji berhasil terdeteksi' },
+  { value: '100%', label: 'Kasus dugaan upcoding uji berhasil terdeteksi' },
+  { value: '42%', label: 'Klaim uji diprioritaskan otomatis ke verifikator' },
 ];
 
 const CONTACT_INFO = [
@@ -85,10 +112,18 @@ const CONTACT_INFO = [
   { icon: Clock, label: 'Jam Layanan', value: 'Senin - Jumat, 08.00 - 17.00' },
 ];
 
+
 export function LandingPage() {
   const navigate = useNavigate();
   const base = import.meta.env.BASE_URL;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setShowBackToTop(window.scrollY > 400);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -294,7 +329,7 @@ export function LandingPage() {
               Tentang Kami
             </div>
             <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-4 text-balance">
-              Melindungi Dana JKN dengan Teknologi AI
+              Melindungi Dana JKN Sebelum Klaim Dibayarkan
             </h2>
             <p className="text-slate-500 leading-relaxed mb-4 text-balance">
               BILL GATES (BILLing Ganda &amp; Anomali TerEliminasi Sistem) adalah platform Command Center yang dirancang untuk membantu verifikator dan pengelola JKN mendeteksi klaim ganda serta anomali penagihan sebelum klaim dibayarkan.
@@ -313,16 +348,77 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {ABOUT_STATS.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center lg:text-left"
-              >
-                <p className="text-3xl font-extrabold text-bpjs-600 mb-1">{stat.value}</p>
-                <p className="text-sm font-medium text-slate-500">{stat.label}</p>
+          <div>
+            <div className="grid grid-cols-2 gap-4">
+              {ABOUT_STATS.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center lg:text-left"
+                >
+                  <p className="text-3xl font-extrabold text-bpjs-600 mb-1">{stat.value}</p>
+                  <p className="text-sm font-medium text-slate-500">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-slate-400 mt-3 text-center lg:text-left">
+              Sumber: KPK (2015, 2024), Kompas.id (2025) &mdash; angka skala masalah nasional, bukan hasil operasional BILL GATES.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Kenapa BILL GATES */}
+      <section id="kenapa" className="scroll-mt-24 bg-slate-50/70 border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bpjs-50 border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-4">
+              <ShieldCheck size={14} />
+              Kenapa BILL GATES?
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-3 text-balance">
+              Audit Pasca-Bayar Sudah Terlambat
+            </h2>
+            <p className="text-slate-500 text-balance">
+              BILL GATES menggeser titik deteksi dari setelah klaim dibayar, menjadi sebelum klaim disetujui.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Kondisi saat ini */}
+            <div className="bg-red-50/60 border border-red-100 rounded-2xl p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0">
+                  <XCircle size={20} className="text-red-500" />
+                </div>
+                <h3 className="text-base font-bold text-slate-800">Kondisi Saat Ini: Audit Pasca-Bayar</h3>
               </div>
-            ))}
+              <ul className="space-y-3">
+                {AUDIT_ISSUES.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-slate-600">
+                    <XCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* BILL GATES */}
+            <div className="bg-bpjs-50/60 border border-bpjs-100 rounded-2xl p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0">
+                  <CheckCircle2 size={20} className="text-bpjs-600" />
+                </div>
+                <h3 className="text-base font-bold text-slate-800">BILL GATES: Penapisan Pra-Bayar</h3>
+              </div>
+              <ul className="space-y-3">
+                {BILLGATES_ADVANTAGES.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-slate-600">
+                    <CheckCircle2 size={16} className="text-bpjs-500 shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -357,6 +453,65 @@ export function LandingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Validasi */}
+      <section id="validasi" className="scroll-mt-24 max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bpjs-50 border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-4">
+            <CheckCircle2 size={14} />
+            Diuji, Bukan Hanya Diklaim
+          </div>
+          <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-3 text-balance">
+            Hasil Uji Internal Prototype
+          </h2>
+          <p className="text-slate-500 text-balance">
+            Diuji pada 24 klaim simulasi: klaim wajar bercampur dengan 3 pasang phantom/repeat billing dan 2 kasus dugaan upcoding yang sengaja disisipkan tim untuk menguji algoritma.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-6 mb-6">
+          {VALIDATION_STATS.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center"
+            >
+              <p className="text-4xl font-extrabold text-bpjs-600 mb-2">{stat.value}</p>
+              <p className="text-sm font-medium text-slate-500">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-5">
+          <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-800 leading-relaxed">
+            <span className="font-bold">Kejujuran soal keterbatasan:</span> hasil di atas adalah uji internal pada data simulasi, bukan hasil di lingkungan produksi. 1 dari 24 klaim wajar sempat ikut ter-flag &ldquo;Tinggi&rdquo; akibat variasi acak — sebabnya keputusan akhir tetap di tangan verifikator manusia. Ambang batas & bobot algoritma akan dikalibrasi ulang memakai data riil BPJS Kesehatan pada fase pilot.
+          </p>
+        </div>
+      </section>
+
+      {/* Tim Kami */}
+      <section id="tim" className="scroll-mt-24 bg-slate-50/70 border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bpjs-50 border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-4">
+              <Users size={14} />
+              Tim Kami
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-3 text-balance">
+              Tim Gelombang Utara
+            </h2>
+            <p className="text-slate-500 text-balance">
+              Tiga peran yang saling melengkapi, dari konsep hingga eksekusi teknis.
+            </p>
+          </div>
+
+          <img
+            src={`${base}images/tim.png`}
+            alt="Tim Gelombang Utara - Nailul Authar (Ketua/Educator & Analyst), Andy Kris Perdawan (Tech Lead), Ma'ruf Budi Utomo (UI/UX Designer)"
+            className="w-full rounded-2xl shadow-lg border border-slate-100 object-cover"
+          />
         </div>
       </section>
 
@@ -452,6 +607,18 @@ export function LandingPage() {
           &copy; 2026 Tim Gelombang Utara.
         </p>
       </footer>
+
+      {/* Back to top button */}
+      {showBackToTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Kembali ke atas"
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 flex items-center justify-center rounded-full bg-bpjs-600 hover:bg-bpjs-700 text-white shadow-lg shadow-bpjs-600/30 transition-all animate-fade-in"
+        >
+          <ArrowUp size={20} />
+        </button>
+      )}
     </div>
   );
 }
