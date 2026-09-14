@@ -16,7 +16,6 @@ import {
   UserCheck,
   LockKeyhole,
   Mail,
-  MapPin,
   Clock,
   AlertTriangle,
   Cpu,
@@ -25,13 +24,19 @@ import {
   XCircle,
   Percent,
   TrendingUp,
+  FileText,
+  ScanSearch,
+  Gauge,
+  CircleDollarSign,
 } from 'lucide-react';
 
 const NAV_LINKS = [
   { label: 'Beranda', id: 'beranda' },
   { label: 'Tentang', id: 'tentang' },
   { label: 'Kenapa', id: 'kenapa' },
+  { label: 'Alur', id: 'alur' },
   { label: 'Fitur', id: 'fitur' },
+  { label: 'Prototype', id: 'prototype' },
   { label: 'Validasi', id: 'validasi' },
   { label: 'Tim', id: 'tim' },
   { label: 'Kontak', id: 'kontak' },
@@ -65,6 +70,46 @@ const BILLGATES_ADVANTAGES = [
   'Sinyal risiko & alasannya muncul dalam hitungan detik',
   'Verifikator fokus hanya pada klaim berisiko tinggi/kritis',
   'Dana JKN tidak sempat keluar untuk klaim yang terindikasi bermasalah',
+];
+
+// Alur kerja klaim melalui BILL GATES, dari pengajuan faskes hingga pembayaran (Bagian 3-4 proposal)
+const WORKFLOW_STEPS = [
+  {
+    icon: FileText,
+    step: '1',
+    title: 'Klaim Diajukan Faskes',
+    desc: 'Faskes mengajukan klaim ke sistem BPJS seperti proses normal — belum ada dana yang cair.',
+  },
+  {
+    icon: ScanSearch,
+    step: '2',
+    title: 'Screening Otomatis < 30 Detik',
+    desc: 'BILL GATES merekonsiliasi klaim baru terhadap basis data historis sebelum klaim disetujui.',
+  },
+  {
+    icon: Gauge,
+    step: '3',
+    title: 'Similarity Scoring & Kategori Risiko',
+    desc: 'Skor 0–100 dari ID pasien, ICD-10, jenis tindakan, rentang waktu, faskes & nilai klaim → dikategorikan Rendah/Sedang/Tinggi/Kritis.',
+  },
+  {
+    icon: UserCheck,
+    step: '4',
+    title: 'Eskalasi ke Verifikator',
+    desc: 'Hanya klaim risiko Tinggi/Kritis yang diteruskan ke verifikator manusia; sisanya lanjut otomatis.',
+  },
+  {
+    icon: CircleDollarSign,
+    step: '5',
+    title: 'Keputusan & Pembayaran',
+    desc: 'Verifikator memutuskan setuju/tolak/tinjau ulang. Dana JKN cair hanya untuk klaim yang lolos verifikasi.',
+  },
+];
+
+// Dua titik data riil dari Bagian 2 proposal saja (bukan deret waktu rekaan)
+const RATIO_TREND = [
+  { label: 'April 2025 (aktual)', value: 106.6 },
+  { label: 'Desember 2025 (proyeksi)', value: 111.8 },
 ];
 
 // Fitur nyata sesuai Bagian 3-5 proposal (bukan generic AI marketing)
@@ -108,11 +153,12 @@ const VALIDATION_STATS = [
   { value: '42%', label: 'Klaim uji diprioritaskan otomatis ke verifikator' },
 ];
 
+// TODO: ganti dengan kontak asli tim sebelum submit final (email/no. yang benar-benar aktif)
 const CONTACT_INFO = [
-  { icon: Phone, label: 'Telepon', value: '(021) 500-400' },
-  { icon: Mail, label: 'Email', value: 'kontak@billgates-jkn.id' },
-  { icon: MapPin, label: 'Alamat', value: 'Jakarta, Indonesia' },
-  { icon: Clock, label: 'Jam Layanan', value: 'Senin - Jumat, 08.00 - 17.00' },
+  { icon: Users, label: 'Ketua Tim', value: 'Nailul Authar, S.Kom.' },
+  { icon: Mail, label: 'Email Tim', value: 'GANTI-DENGAN-EMAIL-TIM-YANG-AKTIF' },
+  { icon: Target, label: 'Kompetisi', value: 'Healthkathon 2026 — Tim Gelombang Utara' },
+  { icon: Clock, label: 'Status', value: 'Proposal Peserta · Tahap Seleksi' },
 ];
 
 
@@ -235,12 +281,12 @@ export function LandingPage() {
             Platform Command Center berbasis Artificial Intelligence untuk mendeteksi dan mencegah anomali klaim kesehatan JKN secara real-time dan komprehensif.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-10">
+          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-3">
             <button
               onClick={() => navigate('/dashboard')}
               className="w-full sm:w-auto px-6 py-3.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm lg:text-base font-bold rounded-xl shadow-lg shadow-bpjs-600/25 hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
             >
-              Masuk Command Center
+              Coba Command Center (Demo)
               <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </button>
 
@@ -252,6 +298,10 @@ export function LandingPage() {
               Pelajari Lebih Lanjut
             </button>
           </div>
+
+          <p className="text-xs text-slate-400 mb-8 text-balance">
+            *Command Center berjalan dalam Mode Demo dengan data klaim simulasi untuk keperluan Healthkathon 2026.
+          </p>
 
           {/* Feature row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
@@ -283,36 +333,36 @@ export function LandingPage() {
             className="w-full h-full object-cover object-left lg:rounded-l-[2.5rem]"
           />
 
-          {/* Accuracy badge */}
+          {/* Accuracy badge — angka sama dengan hasil uji internal di section Validasi */}
           <div className="hidden sm:flex absolute top-6 right-6 lg:right-10 bg-white/95 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border border-slate-100 items-center gap-3">
             <div className="w-10 h-10 rounded-full border-4 border-bpjs-500 flex items-center justify-center shrink-0">
-              <span className="text-[10px] font-extrabold text-bpjs-700">99%</span>
+              <span className="text-[10px] font-extrabold text-bpjs-700">100%</span>
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-700 leading-tight">Akurasi</p>
-              <p className="text-xs text-slate-400 leading-tight">Deteksi</p>
+              <p className="text-xs font-bold text-slate-700 leading-tight">Deteksi Uji Internal</p>
+              <p className="text-[10px] text-slate-400 leading-tight">*24 klaim simulasi</p>
             </div>
           </div>
 
-          {/* Potensi duplikasi pill */}
+          {/* Potensi tagihan ganda pill — angka sama dengan prototype dashboard di section Prototype */}
           <div className="hidden sm:flex absolute top-1/2 left-4 sm:left-8 lg:left-12 -translate-y-1/2 bg-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-100 items-center gap-2">
             <AlertTriangle size={16} className="text-amber-500 shrink-0" />
             <div>
-              <p className="text-sm font-extrabold text-slate-800 leading-none">17</p>
-              <p className="text-[10px] text-slate-500 font-medium">Potensi Duplikasi</p>
+              <p className="text-sm font-extrabold text-slate-800 leading-none">43</p>
+              <p className="text-[10px] text-slate-500 font-medium">Potensi Tagihan Ganda (Demo)</p>
             </div>
           </div>
 
-          {/* AI Risk Detection card */}
-          <div className="hidden lg:block absolute bottom-8 left-10 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 w-56">
+          {/* Command Center card — mengikuti modul nyata di dashboard, bukan daftar generik */}
+          <div className="hidden lg:block absolute bottom-8 left-10 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 w-60">
             <div className="flex items-center gap-2 mb-2.5">
               <div className="w-8 h-8 rounded-lg bg-bpjs-600 flex items-center justify-center shrink-0">
                 <Cpu size={16} className="text-white" />
               </div>
-              <p className="text-sm font-bold text-slate-800">AI Risk Detection</p>
+              <p className="text-sm font-bold text-slate-800">Command Center</p>
             </div>
             <ul className="space-y-1.5">
-              {['Analisis Pola Klaim', 'Pencocokan Data Historis', 'Peringatan Anomali'].map((item) => (
+              {['Monitoring Klaim Real-time', 'Similarity Scoring Klaim', 'Radar Risiko Faskes'].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-xs text-slate-600">
                   <CheckCircle2 size={13} className="text-bpjs-500 shrink-0" />
                   {item}
@@ -366,11 +416,36 @@ export function LandingPage() {
             <p className="text-xs text-slate-400 mt-3 text-center lg:text-left">
               Sumber: KPK (2015, 2024), Kompas.id (2025) &mdash; angka skala masalah nasional, bukan hasil operasional BILL GATES.
             </p>
+
+            {/* Mini trend: rasio klaim JKN terhadap iuran */}
+            <div className="rounded-2xl border border-slate-100 bg-white p-5 mt-4">
+              <p className="text-xs font-semibold text-slate-500 mb-4">
+                Rasio Klaim JKN terhadap Iuran
+              </p>
+              <div className="space-y-3">
+                {RATIO_TREND.map((point) => (
+                  <div key={point.label}>
+                    <div className="flex items-baseline justify-between mb-1">
+                      <span className="text-xs text-slate-500">{point.label}</span>
+                      <span className="text-sm font-bold text-slate-800">{point.value}%</span>
+                    </div>
+                    <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-bpjs-500"
+                        style={{ width: `${(point.value / 120) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-slate-400 mt-3">
+                Skala batang 0–120%. Sumber: Kompas.id (2025) — dua titik data yang tersedia, bukan proyeksi jangka panjang.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Kenapa BILL GATES */}
       <section id="kenapa" className="scroll-mt-24 bg-slate-50/70 border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -426,6 +501,47 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Alur Kerja */}
+      <section id="alur" className="scroll-mt-24 max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bpjs-50 border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-4">
+            <ScanSearch size={14} />
+            Alur Kerja
+          </div>
+          <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-3 text-balance">
+            Dari Klaim Diajukan Sampai Dana Cair
+          </h2>
+          <p className="text-slate-500 text-balance">
+            Lima langkah — dan dana JKN tidak sempat keluar untuk klaim yang masih ditandai berisiko.
+          </p>
+        </div>
+
+        <div className="relative grid gap-6 lg:grid-cols-5">
+          {/* Connector line (desktop only) */}
+          <div className="hidden lg:block absolute top-8 left-[10%] right-[10%] h-0.5 bg-slate-200" />
+
+          {WORKFLOW_STEPS.map(({ icon: Icon, step, title, desc }) => (
+            <div key={step} className="relative flex flex-col items-center text-center lg:items-start lg:text-left">
+              <div className="relative z-10 w-16 h-16 rounded-2xl bg-bpjs-600 flex items-center justify-center shadow-lg shadow-bpjs-600/25 mb-4">
+                <Icon size={26} className="text-white" />
+                <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border-2 border-bpjs-600 text-bpjs-700 text-xs font-extrabold flex items-center justify-center">
+                  {step}
+                </span>
+              </div>
+              <h3 className="text-sm font-bold text-slate-800 mb-1.5">{title}</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-start gap-3 bg-bpjs-50/60 border border-bpjs-100 rounded-2xl p-5 mt-10">
+          <ShieldCheck size={18} className="text-bpjs-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-slate-600 leading-relaxed">
+            <span className="font-bold text-slate-800">Titik krusial ada di Langkah 1–2:</span> berbeda dari audit konvensional yang memeriksa klaim setelah dana cair, BILL GATES menahan klaim bermasalah sebelum sampai ke tahap pembayaran.
+          </p>
+        </div>
+      </section>
+
       {/* Fitur */}
       <section id="fitur" className="scroll-mt-24 bg-slate-50/70 border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
@@ -456,6 +572,44 @@ export function LandingPage() {
               </div>
             ))}
           </div>
+
+          <div className="flex items-start gap-3 bg-bpjs-50/60 border border-bpjs-100 rounded-2xl p-5 mt-6">
+            <Cpu size={18} className="text-bpjs-600 shrink-0 mt-0.5" />
+            <p className="text-sm text-slate-600 leading-relaxed">
+              <span className="font-bold text-slate-800">Rencana integrasi:</span> BILL GATES dirancang untuk terhubung ke sistem klaim BPJS Kesehatan yang sudah berjalan (mis. Vclaim) lewat API, dijadwalkan pada Fase 3 roadmap pengembangan — bukan menggantikan sistem yang ada, melainkan menjadi lapisan penapisan tambahan sebelum klaim disetujui.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Prototype / Dashboard */}
+      <section id="prototype" className="scroll-mt-24 max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bpjs-50 border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-4">
+            <LayoutDashboard size={14} />
+            Prototype Fungsional
+          </div>
+          <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-3 text-balance">
+            Command Center yang Sudah Bisa Dicoba
+          </h2>
+          <p className="text-slate-500 text-balance">
+            Bukan sekadar mockup — ini tangkapan layar prototype BILL GATES yang berjalan dengan data simulasi.
+          </p>
+        </div>
+
+        <div className="relative rounded-2xl overflow-hidden border border-slate-100 shadow-xl">
+          <img
+            src={`${base}images/dashboard.png`}
+            alt="Dashboard Pusat Kendali BILL GATES - Mode Demo dengan data klaim simulasi"
+            className="w-full object-cover"
+          />
+        </div>
+
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-5 mt-6">
+          <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-800 leading-relaxed">
+            <span className="font-bold">Soal skala data di atas:</span> volume klaim yang tampil di dashboard (mis. 12.458 total klaim) adalah dataset demo untuk menunjukkan tampilan &amp; performa antarmuka pada skala besar, bukan klaim bahwa seluruh volume tersebut sudah melalui validasi akurasi manual. Validasi akurasi (Bagian 5) dilakukan secara terkontrol pada 24 klaim simulasi berlabel, dan akan diperluas pada fase pilot dengan data riil (Bagian 6).
+          </p>
         </div>
       </section>
 
@@ -529,7 +683,7 @@ export function LandingPage() {
             Ada Pertanyaan Seputar BILL GATES?
           </h2>
           <p className="text-slate-500 text-balance">
-            Tim kami siap membantu Anda memahami dan mengimplementasikan sistem deteksi fraud klaim JKN.
+            Tim Gelombang Utara terbuka untuk berdiskusi lebih lanjut mengenai proposal BILL GATES untuk Healthkathon 2026.
           </p>
         </div>
 
