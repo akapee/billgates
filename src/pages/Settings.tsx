@@ -8,8 +8,9 @@ type SettingsData = { highRisk: number; criticalRisk: number; duplicateSimilarit
 const defaults: SettingsData = { highRisk: 60, criticalRisk: 80, duplicateSimilarity: 80, email: true, browser: true, weekly: false, compact: false };
 
 export function Settings() {
-  const { role } = useAuth();
-  const isAdmin = role === 'admin';
+  //const { role } = useAuth();
+ // const isAdmin = role === 'admin';
+  const { canManageSystem: isAdmin } = useAuth();
   const [settings, setSettings] = useState<SettingsData>(defaults);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
