@@ -11,7 +11,7 @@ const ACTION_LABEL: Record<string, string> = {
 };
 
 export function AuditLog() {
-  const { canAudit } = useAuth();
+  const { canInvestigate: canAudit } = useAuth();
   const { data, loading, error } = useFirestore<AuditRow>('auditLogs', [orderBy('at', 'desc'), limit(300)]);
   const [filter, setFilter] = useState('all');
   const rows = useMemo(() => data.filter((r) => filter === 'all' || r.action === filter), [data, filter]);
