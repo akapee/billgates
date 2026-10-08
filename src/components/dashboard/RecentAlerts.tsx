@@ -63,8 +63,8 @@ interface AlertCardProps {
 
 function asDate(value: unknown): Date {
   if (value instanceof Date) return value;
-  if (value && typeof value === 'object' && 'toDate' in value && typeof value.toDate === 'function') {
-    return value.toDate();
+  if (value && typeof value === 'object' && 'toDate' in value && typeof (value as any).toDate === 'function') {
+    return (value as any).toDate();
   }
   return new Date(value as string | number);
 }

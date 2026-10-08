@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
 import {
   LayoutDashboard,
   Activity,
@@ -14,6 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  ScrollText,
+  Brain,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -42,6 +45,7 @@ const navSections: NavSection[] = [
       { label: 'Deteksi Tagihan Ganda', icon: Copy, path: '/duplicate-detection', badge: 43 },
       { label: 'Deteksi Anomali', icon: AlertTriangle, path: '/anomalies', badge: 8 },
       { label: 'Radar Risiko Fraud', icon: ScanLine, path: '/risk-radar' },
+      { label: 'Model Belajar', icon: Brain, path: '/learning' },
     ],
   },
   {
@@ -55,6 +59,7 @@ const navSections: NavSection[] = [
     section: 'ANALITIK',
     items: [
       { label: 'Laporan', icon: BarChart2, path: '/reports' },
+      { label: 'Log Audit', icon: ScrollText, path: '/audit-log' },
       { label: 'Pengaturan', icon: Settings, path: '/settings' },
     ],
   },
@@ -130,6 +135,21 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose }: SidebarProps) {
+  const { canDecide, canInvestigate, canViewReports, canManageSystem, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  const visibleSections = navSections.map((sec) => ({
+    ...sec,
+    items: sec.items.filter((i) => {
+      if (i.path === '/duplicate-detection' || i.path === '/anomalies' || i.path === '/verification' || i.path === '/claims') return canDecide;
+      if (i.path === '/risk-radar' || i.path === '/investigation') return canInvestigate;
+      if (i.path === '/reports') return canViewReports;
+      if (i.path === '/audit-log' || i.path === '/learning' || i.path === '/settings') return canManageSystem;
+      return true; // Dashboard is visible to all
+    })
+  })).filter(sec => sec.items.length > 0);
+
+  const doLogout = async () => { onMobileClose(); await logout(); navigate('/login', { replace: true }); };
   return (
     <>
       {/* Mobile Overlay */}
@@ -201,7 +221,7 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto sidebar-scroll py-4 px-2 space-y-1">
-          {navSections.map((section) => (
+          {visibleSections.map((section) => (
             <div key={section.section} className="mb-2">
               {!collapsed && (
                 <p className="px-3 py-1 text-[10px] font-bold tracking-widest text-white/70 uppercase mb-1">
@@ -225,12 +245,12 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
           ))}
 
           <div className="mt-3 pt-3 border-t border-white/10">
-            <NavLink
-              to="/"
-              onClick={onMobileClose}
+            <button
+              type="button"
+              onClick={doLogout}
               title={collapsed ? 'Keluar' : undefined}
               className={cn(
-                'sidebar-item group relative text-red-100 hover:bg-red-500/20 hover:text-white',
+                'sidebar-item group relative w-full text-red-100 hover:bg-red-500/20 hover:text-white',
                 collapsed && 'justify-center px-2'
               )}
             >
@@ -241,7 +261,7 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
                   Keluar
                 </div>
               )}
-            </NavLink>
+            </button>
           </div>
         </nav>
 

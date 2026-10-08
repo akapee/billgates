@@ -2,12 +2,14 @@ import React, { useMemo, useState } from 'react';
 import { BarChart2, Download, FileText } from 'lucide-react';
 import { useClaims } from '../hooks/useClaims';
 import { formatCurrency } from '../lib/utils';
+import { logAudit } from '../services/audit';
 
 export function Reports() {
   const { claims, loading, error } = useClaims();
   const [period, setPeriod] = useState('30 Hari Terakhir');
   const summary = useMemo(() => ({ total: claims.length, highRisk: claims.filter(claim => claim.riskScore >= 60).length, anomalies: claims.filter(claim => claim.anomalyFlags.length > 0).length, value: claims.reduce((sum, claim) => sum + claim.amount, 0) }), [claims]);
   const exportReport = () => {
+    void logAudit('export_csv', { detail: `${claims.length} baris` });
     const rows = [['ID Klaim', 'Pasien', 'Faskes', 'Nilai Klaim', 'Skor Risiko', 'Status'], ...claims.map(claim => [claim.id, claim.patientName, claim.providerName, claim.amount.toString(), claim.riskScore.toString(), claim.status])];
     const csv = rows.map(row => row.map(value => `"${value.replaceAll('"', '""')}"`).join(',')).join('\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));

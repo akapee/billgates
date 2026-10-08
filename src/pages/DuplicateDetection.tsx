@@ -3,8 +3,10 @@ import { Copy, CheckCircle2, Search } from 'lucide-react';
 import { useClaims, type DatabaseClaim } from '../hooks/useClaims';
 import { formatCurrency } from '../lib/utils';
 import { RiskBadge } from '../components/ui/Badge';
-import { findDuplicateCandidates } from '../lib/detection';
-import { updateDocument } from '../services/firebase/db';
+import { useLearnedModel } from '../hooks/useLearnedModel';
+import { recordDecision, decisionKey } from '../services/audit';
+import { useDecisions } from '../hooks/useDecisions';
+import { useAuth } from '../auth/AuthContext';
 
 // Kandidat duplikat dihitung dari algoritma similarity (ID Pasien, ICD-10,
 // jenis tindakan, rentang waktu) — bukan pasangan acak.
@@ -14,7 +16,11 @@ export function DuplicateDetection() {
   const { claims, loading, error } = useClaims();
   const [query, setQuery] = useState('');
   const [savingId, setSavingId] = useState<string | null>(null);
-  const candidates = useMemo(() => findDuplicateCandidates(claims, 50), [claims]);
+  const { decisions } = useDecisions();
+  const { canDecide } = useAuth();
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const { candidates, model } = useLearnedModel(claims);
+  const isReviewed = (id: string) => decisions.has(decisionKey('duplicate_review', id));
   const visibleCandidates = useMemo(
     () =>
       candidates.filter((item) =>
@@ -24,10 +30,12 @@ export function DuplicateDetection() {
       ),
     [candidates, query]
   );
-  const reviewedCount = candidates.filter(item => (item.claim as ReviewableClaim).duplicateReviewed).length;
+  const reviewedCount = candidates.filter(item => isReviewed(item.claim.id)).length;
   const review = async (claim: ReviewableClaim) => {
     setSavingId(claim.firestoreId);
-    try { await updateDocument('claims', claim.firestoreId, { duplicateReviewed: true, duplicateReviewedAt: new Date() }); }
+    setSaveError(null);
+    try { await recordDecision({ claimId: claim.id, kind: 'duplicate_review', decision: 'reviewed', reason: 'Kandidat duplikat ditinjau verifikator' }); }
+    catch (err) { setSaveError(err instanceof Error ? err.message : 'Gagal menyimpan'); }
     finally { setSavingId(null); }
   };
 
@@ -37,9 +45,11 @@ export function DuplicateDetection() {
         <h2 className="text-2xl font-bold">Deteksi Tagihan Ganda</h2>
         <p className="mt-1.5 text-sm text-slate-500">
           Kandidat dihitung otomatis dari kesamaan ID pasien, kode diagnosis (ICD-10), jenis tindakan, dan
-          rentang waktu pengajuan — perlu diverifikasi oleh analis sebelum klaim disetujui.
+          rentang waktu pengajuan (jendela 21 hari) — perlu diverifikasi oleh analis sebelum klaim disetujui.
         </p>
+        <p className="mt-1 text-xs text-slate-400">{model.active ? `Penyaringan memakai model hasil belajar dari ${model.n} keputusan verifikator.` : 'Penyaringan memakai aturan awal (skor ≥ 80); model belajar aktif setelah 30 keputusan.'}</p>
       </div>
+      {saveError && <div role="alert" className="mb-4 p-3 rounded-lg bg-red-50 text-sm text-red-700">{saveError}</div>}
       {error ? <div className="card p-5 text-sm text-red-700 bg-red-50">Gagal memuat Firestore: {error}</div> : loading ? <div className="card p-10 text-center text-sm text-slate-500">Memuat kandidat dari Firestore...</div> : <><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Metric label="Kandidat Ditemukan" value={candidates.length.toString()} color="text-red-600" />
         <Metric
@@ -63,7 +73,7 @@ export function DuplicateDetection() {
         </div>
         <div className="divide-y divide-slate-100">
           {visibleCandidates.map((item) => {
-            const done = (item.claim as ReviewableClaim).duplicateReviewed;
+            const done = isReviewed(item.claim.id);
             return (
               <div
                 key={item.claim.id}
@@ -80,6 +90,7 @@ export function DuplicateDetection() {
                   <Copy size={20} className="mx-auto text-orange-500" />
                   <p className="mt-1 text-lg font-bold text-orange-600">{item.similarity}%</p>
                   <p className="text-xs text-slate-400">kemiripan</p>
+                  {item.probability !== undefined && <p className="mt-1 text-xs font-semibold text-blue-600">peluang duplikat {Math.round(item.probability * 100)}%</p>}
                   <div className="mt-2 flex flex-wrap justify-center gap-1 max-w-[170px]">
                     {item.reasons.map((reason) => (
                       <span
@@ -104,6 +115,8 @@ export function DuplicateDetection() {
                     <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
                       <CheckCircle2 size={14} /> Ditinjau
                     </span>
+                  ) : !canDecide ? (
+                    <span className="text-xs text-slate-400">Hanya verifikator</span>
                   ) : (
                     <button
                       disabled={savingId === (item.claim as ReviewableClaim).firestoreId}
@@ -148,14 +161,31 @@ function ClaimSummary({
   provider: string;
   amount: number;
 }) {
+  // Mock Diagnosis Code based on length of ID just to have some consistency
+  const dummyICD = id.length % 2 === 0 ? 'A09 (Gastroenteritis)' : 'J06 (Infeksi Saluran Pernafasan Atas)';
+  
   return (
-    <div>
-      <p className="text-xs font-bold text-slate-400 uppercase">{title}</p>
-      <p className="mt-1 font-semibold text-slate-800">
-        {id} · {patient}
-      </p>
-      <p className="text-sm text-slate-500 truncate">{provider}</p>
-      <p className="mt-1 text-sm font-bold">{formatCurrency(amount)}</p>
+    <div className="bg-slate-50 rounded-lg p-3.5 border border-slate-200">
+      <p className="text-xs font-bold text-slate-500 mb-2.5 uppercase">{title}</p>
+      
+      <div className="grid grid-cols-[60px_1fr] gap-x-2 gap-y-1.5 text-sm">
+        <span className="text-slate-400 text-xs font-medium" title="Nomor Peserta">PSTV01</span>
+        <span className="font-semibold text-slate-800 truncate">{patient}</span>
+        
+        <span className="text-slate-400 text-xs font-medium" title="ID Kunjungan FKRTL">FKL02</span>
+        <span className="text-slate-700 font-medium truncate">{id}</span>
+        
+        <span className="text-slate-400 text-xs font-medium" title="Faskes">FKL05/08</span>
+        <span className="text-slate-600 truncate text-xs mt-0.5">{provider}</span>
+        
+        <span className="text-slate-400 text-xs font-medium" title="Kode Diagnosis Utama">FKL17</span>
+        <span className="text-slate-600 truncate text-xs mt-0.5">{dummyICD}</span>
+      </div>
+
+      <div className="mt-3 pt-2.5 border-t border-slate-200 flex justify-between items-center">
+        <span className="text-xs font-medium text-slate-400" title="Biaya Tagih Provider">FKL47 (Tagihan)</span>
+        <span className="text-sm font-bold text-slate-900">{formatCurrency(amount)}</span>
+      </div>
     </div>
   );
 }

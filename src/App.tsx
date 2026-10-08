@@ -11,31 +11,42 @@ import { Investigation } from './pages/Investigation';
 import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
 import { LandingPage } from './pages/LandingPage';
+import { Login } from './pages/Login';
+import { AuditLog } from './pages/AuditLog';
+import { Learning } from './pages/Learning';
+import { AuthProvider } from './auth/AuthContext';
+import { RequireAuth } from './auth/RequireAuth';
 
 function App() {
   return (
-    <HashRouter>
-      <Routes>
-        {/* Landing Page at root */}
-        <Route path="/" element={<LandingPage />} />
+    <AuthProvider>
+      <HashRouter>
+        <Routes>
+          {/* Landing Page at root */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* App Shell with Sidebar + Topbar */}
-        <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/claims" element={<Claims />} />
-          <Route path="/duplicate-detection" element={<DuplicateDetection />} />
-          <Route path="/anomalies" element={<Anomalies />} />
-          <Route path="/risk-radar" element={<RiskRadar />} />
-          <Route path="/verification" element={<Verification />} />
-          <Route path="/investigation" element={<Investigation />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
+          {/* App Shell with Sidebar + Topbar */}
+          <Route path="/login" element={<Login />} />
 
-        {/* 404 Fallback */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </HashRouter>
+          <Route element={<AppLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/claims" element={<Claims />} />
+            <Route path="/duplicate-detection" element={<DuplicateDetection />} />
+            <Route path="/anomalies" element={<Anomalies />} />
+            <Route path="/risk-radar" element={<RiskRadar />} />
+            <Route path="/verification" element={<Verification />} />
+            <Route path="/investigation" element={<Investigation />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/learning" element={<Learning />} />
+            <Route path="/audit-log" element={<AuditLog />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+
+          {/* 404 Fallback */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </HashRouter>
+    </AuthProvider>
   );
 }
 

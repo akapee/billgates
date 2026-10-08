@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { cn, formatRelativeTime } from '../../lib/utils';
 import { DemoBadge } from '../ui/Badge';
+import { useAuth } from '../../auth/AuthContext';
 import { notifications } from '../../data/alerts';
 import type { AlertSeverity } from '../../types';
 
@@ -29,6 +30,8 @@ const routeLabels: Record<string, { parent: string; current: string }> = {
   '/verification': { parent: 'Investigasi', current: 'Pusat Verifikasi' },
   '/investigation': { parent: 'Investigasi', current: 'Investigasi' },
   '/reports': { parent: 'Analitik', current: 'Laporan' },
+  '/learning': { parent: 'Deteksi', current: 'Model Belajar' },
+  '/audit-log': { parent: 'Analitik', current: 'Log Audit' },
   '/settings': { parent: 'Sistem', current: 'Pengaturan' },
 };
 
@@ -123,6 +126,8 @@ interface TopbarProps {
 
 export function Topbar({ onMobileMenuOpen }: TopbarProps) {
   const location = useLocation();
+  const { user, role } = useAuth();
+  const roleLabel = role === 'admin' ? 'Administrator' : role === 'verifier' ? 'Verifikator' : role === 'auditor' ? 'Auditor' : '';
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [notifOpen, setNotifOpen] = useState(false);
@@ -218,8 +223,8 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
           <User size={15} className="text-white" />
         </div>
         <div className="hidden sm:block">
-          <p className="text-sm font-semibold text-slate-900 leading-none">Analis Fraud</p>
-          <p className="text-[11px] text-slate-500 mt-0.5 leading-none">BPJS Kesehatan</p>
+          <p className="text-sm font-semibold text-slate-900 leading-none truncate max-w-[160px]">{user?.email ?? "—"}</p>
+          <p className="text-[11px] text-slate-500 mt-0.5 leading-none">{roleLabel}</p>
         </div>
         <ChevronDown size={14} className="hidden sm:block text-slate-400" />
       </div>

@@ -15,6 +15,11 @@ export function Claims() {
   const [query, setQuery] = useState('');
   const [risk, setRisk] = useState<'all' | RiskLevel>('all');
   const [selected, setSelected] = useState<ClaimData | null>(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
   const filteredClaims = useMemo(() => {
     const keyword = query.toLowerCase().trim();
     return claims.filter((claim) => {
@@ -22,6 +27,14 @@ export function Claims() {
       return matches && (risk === 'all' || claim.riskLevel === risk);
     });
   }, [claims, query, risk]);
+
+  // Reset page to 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [query, risk]);
+
+  const totalPages = Math.ceil(filteredClaims.length / pageSize);
+  const paginatedClaims = filteredClaims.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return <div className="p-6 max-w-[1600px] mx-auto">
     <div className="mb-6"><h2 className="text-2xl font-bold text-slate-900">Monitoring Klaim</h2><p className="mt-1.5 text-sm text-slate-500">Pantau dan telaah klaim JKN yang masuk secara real-time.</p></div>
@@ -33,8 +46,32 @@ export function Claims() {
         <div className="relative w-full md:max-w-md"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Cari ID klaim, pasien, atau faskes..." className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30" /></div>
         <div className="flex items-center gap-2"><SlidersHorizontal size={16} className="text-slate-400" /><select value={risk} onChange={e => setRisk(e.target.value as 'all' | RiskLevel)} className="py-2.5 px-3 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none">{riskOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>
       </div>
-      <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="text-left px-5 py-3">Klaim</th><th className="text-left px-5 py-3">Pasien & Faskes</th><th className="text-left px-5 py-3">Diagnosis</th><th className="text-right px-5 py-3">Nilai</th><th className="text-center px-5 py-3">Risiko</th><th className="text-center px-5 py-3">Status</th></tr></thead><tbody className="divide-y divide-slate-100">{filteredClaims.map(claim => <tr key={claim.id} onClick={() => setSelected(claim)} className="hover:bg-blue-50/50 cursor-pointer"><td className="px-5 py-4"><p className="font-semibold">{claim.id}</p><p className="text-xs text-slate-400">{claim.date.toLocaleDateString('id-ID')}</p></td><td className="px-5 py-4"><p className="font-medium">{claim.patientName}</p><p className="text-xs text-slate-400 truncate max-w-[220px]">{claim.providerName}</p></td><td className="px-5 py-4"><p>{claim.diagnosisCode}</p><p className="text-xs text-slate-400 truncate max-w-[180px]">{claim.diagnosis}</p></td><td className="px-5 py-4 text-right font-semibold">{formatCurrency(claim.amount)}</td><td className="px-5 py-4 text-center"><RiskBadge level={claim.riskLevel} /></td><td className="px-5 py-4 text-center"><StatusBadge status={claim.status} /></td></tr>)}</tbody></table></div>
+      <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="text-left px-5 py-3">Klaim</th><th className="text-left px-5 py-3">Pasien & Faskes</th><th className="text-left px-5 py-3">Diagnosis</th><th className="text-right px-5 py-3">Nilai</th><th className="text-center px-5 py-3">Risiko</th><th className="text-center px-5 py-3">Status</th></tr></thead><tbody className="divide-y divide-slate-100">{paginatedClaims.map(claim => <tr key={claim.id} onClick={() => setSelected(claim)} className="hover:bg-blue-50/50 cursor-pointer"><td className="px-5 py-4"><p className="font-semibold">{claim.id}</p><p className="text-xs text-slate-400">{claim.date.toLocaleDateString('id-ID')}</p></td><td className="px-5 py-4"><p className="font-medium">{claim.patientName}</p><p className="text-xs text-slate-400 truncate max-w-[220px]">{claim.providerName}</p></td><td className="px-5 py-4"><p>{claim.diagnosisCode}</p><p className="text-xs text-slate-400 truncate max-w-[180px]">{claim.diagnosis}</p></td><td className="px-5 py-4 text-right font-semibold">{formatCurrency(claim.amount)}</td><td className="px-5 py-4 text-center"><RiskBadge level={claim.riskLevel} /></td><td className="px-5 py-4 text-center"><StatusBadge status={claim.status} /></td></tr>)}</tbody></table></div>
       {filteredClaims.length === 0 && <p className="p-10 text-center text-sm text-slate-500">Tidak ada klaim yang sesuai dengan pencarian.</p>}
+      
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100 bg-slate-50">
+          <span className="text-xs text-slate-500 font-medium">
+            Menampilkan {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredClaims.length)} dari {filteredClaims.length} klaim
+          </span>
+          <div className="flex gap-2">
+            <button 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Sebelumnya
+            </button>
+            <button 
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Selanjutnya
+            </button>
+          </div>
+        </div>
+      )}
     </div>
     {selected && <ClaimPanel claim={selected} onClose={() => setSelected(null)} />}</>}
   </div>;

@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "seed:firebase": "tsx scripts/seedFirebase.ts"
+    "seed:firebase": "tsx scripts/seedFirebase.ts",
+    "eval": "node --experimental-strip-types scripts/eval/run.ts",
+    "eval:learn": "node --experimental-strip-types scripts/eval/learn.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

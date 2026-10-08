@@ -1,0 +1,61 @@
+rules_version = '2';
+
+// Kontrol akses BILL GATES. Prinsip: tolak semua secara default; buka hanya yang perlu.
+//   admin    : kelola data demo (seed), pengaturan, baca log audit
+//   verifier : baca data klaim, buat keputusan
+//   auditor  : baca data klaim + log audit (tanpa membuat keputusan)
+// Peran disimpan di koleksi `staff/{uid}` dan hanya bisa diubah lewat Firebase Console / Admin SDK,
+// TIDAK dari aplikasi (allow write: if false).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function staffDoc() { return get(/databases/$(database)/documents/staff/$(request.auth.uid)); }
+    function hasRole() { return signedIn() && exists(/databases/$(database)/documents/staff/$(request.auth.uid)); }
+    function role() { return staffDoc().data.role; }
+    function isAdmin() { return hasRole() && role() == 'admin'; }
+    function isVerifier() { return hasRole() && role() in ['admin', 'verifier']; }
+    function isAuditor() { return hasRole() && role() in ['admin', 'auditor']; }
+
+    // Peran: pengguna hanya boleh membaca dokumennya sendiri
+    match /staff/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Data demo (sintetis): semua staf boleh baca; hanya admin boleh tulis (seed)
+    match /claims/{id}            { allow read: if hasRole(); allow write: if isAdmin(); }
+    match /alerts/{id}            { allow read: if hasRole(); allow write: if isAdmin(); }
+    match /notifications/{id}     { allow read: if hasRole(); allow write: if isAdmin(); }
+    match /kpi_cards/{id}         { allow read: if hasRole(); allow write: if isAdmin(); }
+    match /risk_distribution/{id} { allow read: if hasRole(); allow write: if isAdmin(); }
+    match /anomaly_breakdown/{id} { allow read: if hasRole(); allow write: if isAdmin(); }
+    match /quick_actions/{id}     { allow read: if hasRole(); allow write: if isAdmin(); }
+    match /app_settings/{id}      { allow read: if hasRole(); allow write: if isAdmin(); }
+
+    // Keputusan verifikator: wajib atas nama sendiri, ada alasan, waktu dari server, tidak boleh dihapus
+    match /decisions/{id} {
+      allow read: if hasRole();
+      allow create, update: if isVerifier()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.at == request.time
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() >= 5
+        && request.resource.data.reason.size() <= 500
+        && request.resource.data.kind in ['verification', 'duplicate_review', 'anomaly_followup']
+        && request.resource.data.decision in ['approved', 'rejected', 'reviewed', 'resolved'];
+      allow delete: if false;
+    }
+
+    // Log audit: append-only. Siapa pun yang punya peran boleh MENULIS atas namanya sendiri;
+    // hanya auditor/admin yang boleh MEMBACA; tidak ada update/hapus.
+    match /auditLogs/{id} {
+      allow create: if hasRole()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.at == request.time
+        && request.resource.data.action in ['login', 'logout', 'session_timeout', 'view_claim', 'export_csv', 'decision'];
+      allow read: if isAuditor();
+      allow update, delete: if false;
+    }
+  }
+}

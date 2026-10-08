@@ -1,0 +1,333 @@
+{
+  "tuneSeed": 42,
+  "testSeed": 7,
+  "chosenThreshold": 80,
+  "accuracy": {
+    "Baseline (persis: pasien+dx+tindakan+faskes+tanggal)": {
+      "n": 5026,
+      "positives": 100,
+      "flagged": 14,
+      "tp": 14,
+      "fp": 0,
+      "fn": 86,
+      "precision": 1,
+      "recall": 0.14,
+      "f1": 0.24561403508771928,
+      "fpr": 0,
+      "workloadPct": 0.002785515320334262,
+      "byTruth": {
+        "dup_exact": "14/37",
+        "dup_cross": "0/20",
+        "dup_typo": "0/9",
+        "dup_late": "0/18",
+        "dup_noisy": "0/16"
+      },
+      "fpBy": {},
+      "ms": 19.463371999999993
+    },
+    "V1 (algoritma proposal lama, ambang 50)": {
+      "n": 5026,
+      "positives": 100,
+      "flagged": 2822,
+      "tp": 100,
+      "fp": 2722,
+      "fn": 0,
+      "precision": 0.03543586109142452,
+      "recall": 1,
+      "f1": 0.06844626967830253,
+      "fpr": 0.5525781567194479,
+      "workloadPct": 0.5614803024273777,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "20/20",
+        "dup_typo": "9/9",
+        "dup_late": "18/18",
+        "dup_noisy": "16/16"
+      },
+      "fpBy": {
+        "normal": 2309,
+        "legit_chronic": 233,
+        "legit_series": 65,
+        "legit_followup": 115
+      },
+      "ms": 903.298575
+    },
+    "V2 (berblok + jendela 21 hari + ID fuzzy, ambang 80)": {
+      "n": 5026,
+      "positives": 100,
+      "flagged": 178,
+      "tp": 100,
+      "fp": 78,
+      "fn": 0,
+      "precision": 0.5617977528089888,
+      "recall": 1,
+      "f1": 0.7194244604316548,
+      "fpr": 0.015834348355663823,
+      "workloadPct": 0.0354158376442499,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "20/20",
+        "dup_typo": "9/9",
+        "dup_late": "18/18",
+        "dup_noisy": "16/16"
+      },
+      "fpBy": {
+        "legit_chronic": 2,
+        "normal": 20,
+        "legit_series": 56
+      },
+      "ms": 12.562959999999975
+    }
+  },
+  "sweep": [
+    {
+      "th": 50,
+      "n": 5026,
+      "positives": 100,
+      "flagged": 286,
+      "tp": 100,
+      "fp": 186,
+      "fn": 0,
+      "precision": 0.34965034965034963,
+      "recall": 1,
+      "f1": 0.5181347150259067,
+      "fpr": 0.037758830694275276,
+      "workloadPct": 0.05690409868682849,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "20/20",
+        "dup_typo": "9/9",
+        "dup_late": "18/18",
+        "dup_noisy": "16/16"
+      },
+      "fpBy": {
+        "legit_chronic": 3,
+        "legit_followup": 75,
+        "normal": 52,
+        "legit_series": 56
+      }
+    },
+    {
+      "th": 60,
+      "n": 5026,
+      "positives": 100,
+      "flagged": 286,
+      "tp": 100,
+      "fp": 186,
+      "fn": 0,
+      "precision": 0.34965034965034963,
+      "recall": 1,
+      "f1": 0.5181347150259067,
+      "fpr": 0.037758830694275276,
+      "workloadPct": 0.05690409868682849,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "20/20",
+        "dup_typo": "9/9",
+        "dup_late": "18/18",
+        "dup_noisy": "16/16"
+      },
+      "fpBy": {
+        "legit_chronic": 3,
+        "legit_followup": 75,
+        "normal": 52,
+        "legit_series": 56
+      }
+    },
+    {
+      "th": 70,
+      "n": 5026,
+      "positives": 100,
+      "flagged": 286,
+      "tp": 100,
+      "fp": 186,
+      "fn": 0,
+      "precision": 0.34965034965034963,
+      "recall": 1,
+      "f1": 0.5181347150259067,
+      "fpr": 0.037758830694275276,
+      "workloadPct": 0.05690409868682849,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "20/20",
+        "dup_typo": "9/9",
+        "dup_late": "18/18",
+        "dup_noisy": "16/16"
+      },
+      "fpBy": {
+        "legit_chronic": 3,
+        "legit_followup": 75,
+        "normal": 52,
+        "legit_series": 56
+      }
+    },
+    {
+      "th": 75,
+      "n": 5026,
+      "positives": 100,
+      "flagged": 275,
+      "tp": 100,
+      "fp": 175,
+      "fn": 0,
+      "precision": 0.36363636363636365,
+      "recall": 1,
+      "f1": 0.5333333333333333,
+      "fpr": 0.03552578156719448,
+      "workloadPct": 0.054715479506565856,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "20/20",
+        "dup_typo": "9/9",
+        "dup_late": "18/18",
+        "dup_noisy": "16/16"
+      },
+      "fpBy": {
+        "legit_chronic": 2,
+        "legit_followup": 75,
+        "normal": 42,
+        "legit_series": 56
+      }
+    },
+    {
+      "th": 80,
+      "n": 5026,
+      "positives": 100,
+      "flagged": 178,
+      "tp": 100,
+      "fp": 78,
+      "fn": 0,
+      "precision": 0.5617977528089888,
+      "recall": 1,
+      "f1": 0.7194244604316548,
+      "fpr": 0.015834348355663823,
+      "workloadPct": 0.0354158376442499,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "20/20",
+        "dup_typo": "9/9",
+        "dup_late": "18/18",
+        "dup_noisy": "16/16"
+      },
+      "fpBy": {
+        "legit_chronic": 2,
+        "normal": 20,
+        "legit_series": 56
+      }
+    },
+    {
+      "th": 85,
+      "n": 5026,
+      "positives": 100,
+      "flagged": 161,
+      "tp": 91,
+      "fp": 70,
+      "fn": 9,
+      "precision": 0.5652173913043478,
+      "recall": 0.91,
+      "f1": 0.6973180076628352,
+      "fpr": 0.014210312626877792,
+      "workloadPct": 0.03203342618384401,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "20/20",
+        "dup_typo": "9/9",
+        "dup_late": "18/18",
+        "dup_noisy": "7/16"
+      },
+      "fpBy": {
+        "legit_chronic": 1,
+        "legit_series": 56,
+        "normal": 13
+      }
+    },
+    {
+      "th": 90,
+      "n": 5026,
+      "positives": 100,
+      "flagged": 146,
+      "tp": 79,
+      "fp": 67,
+      "fn": 21,
+      "precision": 0.541095890410959,
+      "recall": 0.79,
+      "f1": 0.6422764227642276,
+      "fpr": 0.013601299228583028,
+      "workloadPct": 0.029048945483485872,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "20/20",
+        "dup_typo": "4/9",
+        "dup_late": "18/18",
+        "dup_noisy": "0/16"
+      },
+      "fpBy": {
+        "legit_chronic": 1,
+        "legit_series": 56,
+        "normal": 10
+      }
+    },
+    {
+      "th": 95,
+      "n": 5026,
+      "positives": 100,
+      "flagged": 121,
+      "tp": 63,
+      "fp": 58,
+      "fn": 37,
+      "precision": 0.5206611570247934,
+      "recall": 0.63,
+      "f1": 0.5701357466063348,
+      "fpr": 0.011774259033698742,
+      "workloadPct": 0.024074810982888977,
+      "byTruth": {
+        "dup_exact": "37/37",
+        "dup_cross": "8/20",
+        "dup_typo": "0/9",
+        "dup_late": "18/18",
+        "dup_noisy": "0/16"
+      },
+      "fpBy": {
+        "legit_series": 54,
+        "normal": 4
+      }
+    }
+  ],
+  "latency": [
+    {
+      "n": 1000,
+      "v2": 1.4634340000000066,
+      "v1": 23.712614999999914
+    },
+    {
+      "n": 2000,
+      "v2": 3.2964630000001307,
+      "v1": 127.29574200000002
+    },
+    {
+      "n": 5000,
+      "v2": 19.81306399999994,
+      "v1": 1133.4400970000002
+    },
+    {
+      "n": 10000,
+      "v2": 88.86420899999985,
+      "v1": 5221.648507
+    },
+    {
+      "n": 20000,
+      "v2": 156.17138199999863
+    },
+    {
+      "n": 50000,
+      "v2": 685.871459
+    },
+    {
+      "n": 100000,
+      "v2": 2405.473528999999
+    },
+    {
+      "n": 200000,
+      "v2": 7967.519157999999
+    }
+  ]
+}

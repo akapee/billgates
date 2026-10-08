@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, collection, addDoc, deleteDoc, getDocs, doc, setDoc } from "firebase/firestore";
 import * as dotenv from "dotenv";
 import { resolve, dirname } from "path";
@@ -26,6 +27,7 @@ console.log("Firebase config loaded for project:", firebaseConfig.projectId);
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // Import all static mock data
 import { recentAlerts, notifications } from '../src/data/alerts';
@@ -51,6 +53,10 @@ async function clearCollection(collectionName: string) {
 }
 
 async function seedData() {
+  // Aturan Firestore menolak tulis tanpa login. Seed harus memakai akun ADMIN
+  // (peran 'admin' di koleksi staff). Isi SEED_EMAIL & SEED_PASSWORD di .env.local.
+  if (!process.env.SEED_EMAIL || !process.env.SEED_PASSWORD) throw new Error('Isi SEED_EMAIL dan SEED_PASSWORD (akun admin) di .env.local');
+  await signInWithEmailAndPassword(auth, process.env.SEED_EMAIL, process.env.SEED_PASSWORD);
   console.log("Seeding started...");
 
   // 1. Clear collections to avoid duplication if ran multiple times
