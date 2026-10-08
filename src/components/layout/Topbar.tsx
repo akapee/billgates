@@ -127,7 +127,7 @@ interface TopbarProps {
 export function Topbar({ onMobileMenuOpen }: TopbarProps) {
   const location = useLocation();
   const { user, role } = useAuth();
-  const roleLabel = role === 'admin' ? 'Administrator' : role === 'verifier' ? 'Verifikator' : role === 'auditor' ? 'Auditor' : '';
+  const roleLabel = role === 'superadmin' ? 'Administrator' : role === 'verifikator' ? 'Verifikator' : role === 'auditor' ? 'Auditor' : role === 'supervisor' ? 'Supervisor' : '';
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [notifOpen, setNotifOpen] = useState(false);
