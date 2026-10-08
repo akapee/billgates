@@ -47,7 +47,7 @@ const NAV_LINKS = [
 ];
 
 const HERO_FEATURES = [
-  { icon: Zap, label: 'Skala Teruji\n100.000 Klaim ≈ 2 Detik (Uji Batch)' },
+  { icon: Zap, label: 'Skala Teruji\n100.000 Klaim ≈ 2,4 Detik (Uji Batch)' },
   { icon: ShieldCheck, label: 'Skor Bisa Dijelaskan\n& Belajar dari Verifikator' },
   { icon: BarChart3, label: 'Salah Tandai Turun\n(Terukur pada Simulasi)' },
   { icon: Users, label: 'Human-in-the-Loop\nKeputusan Tetap di Tangan Verifikator' },
@@ -95,20 +95,24 @@ const RATIO_TREND = [
 const PROTOTYPE_MODULES = [
   'Monitoring Klaim',
   'Deteksi Tagihan Ganda',
-  'Radar Risiko Faskes',
+  'Deteksi Anomali & Tindak Lanjut',
+  'Radar Risiko Faskes (berbasis aturan)',
   'Pusat Verifikasi (beralasan)',
+  'Investigasi Riwayat Klaim',
   'Model Belajar',
-  'Log Audit & Login Peran',
+  'Laporan & Ekspor CSV',
+  'Log Audit & Login Berperan',
+  'Pengaturan Ambang',
 ];
 
 // Fitur nyata sesuai Bagian 3-5 proposal (bukan generic AI marketing)
 const FEATURES = [
-  { icon: FileSearch, title: 'Penapisan Klaim Ganda Pra-Bayar', desc: 'Klaim baru dibandingkan dengan klaim sebelumnya lewat pengelompokan (blocking), sehingga 100.000 klaim diproses sekitar 2 detik pada uji batch — bukan membandingkan semua pasangan.' },
+  { icon: FileSearch, title: 'Penapisan Klaim Ganda Pra-Bayar', desc: 'Klaim baru dibandingkan dengan klaim sebelumnya lewat pengelompokan (blocking), sehingga 100.000 klaim diproses sekitar 2,4 detik pada uji batch (1 core) — bukan membandingkan semua pasangan.' },
   { icon: Percent, title: 'Skor Kemiripan yang Transparan', desc: 'Skor 0–100 dari ID pasien (wajib sama/mirip), ICD-10, tindakan, faskes, jarak waktu, dan nilai klaim — setiap skor disertai alasannya, bukan black-box.' },
   { icon: TrendingUp, title: 'Indikasi Anomali Biaya (Belum Divalidasi)', desc: 'Deviasi biaya per diagnosis ditandai sebagai sinyal tambahan. Akurasinya belum diukur dan akan divalidasi pada fase pilot.' },
-  { icon: LayoutDashboard, title: 'Dashboard Command Center', desc: 'Monitoring Klaim, Deteksi Tagihan Ganda, Radar Risiko, Pusat Verifikasi, Investigasi, Model Belajar, dan Log Audit dalam satu alur kerja.' },
+  { icon: LayoutDashboard, title: 'Dashboard Command Center', desc: 'Monitoring Klaim, Deteksi Tagihan Ganda, Deteksi Anomali, Radar Risiko, Pusat Verifikasi, Investigasi, Laporan (ekspor CSV), Model Belajar, dan Log Audit dalam satu alur kerja.' },
   { icon: UserCheck, title: 'Belajar dari Keputusan Verifikator', desc: 'Model kecil dengan bobot yang bisa dibaca belajar dari Setujui/Tolak untuk membedakan duplikat dari klaim sah yang mirip. Pada simulasi, precision naik dari 56% ke 86% (200 keputusan); recall turun ke ±84%.' },
-  { icon: LockKeyhole, title: 'Akses Terkontrol & Teraudit', desc: 'Login dengan peran (Verifikator, Auditor, Administrator), sesi habis otomatis, keputusan wajib beralasan, dan log audit append-only. Data demo 100% sintetis.' },
+  { icon: LockKeyhole, title: 'Akses Terkontrol & Teraudit', desc: 'Login berbasis peran (verifikator, auditor, dan pengelola sistem), sesi habis otomatis setelah 15 menit, keputusan wajib beralasan, dan log audit append-only. Tidak ada identitas peserta: ID pasien dipseudonimkan.' },
 ];
 
 // Hasil uji internal (Bagian 5 — Validasi), dengan disclaimer jujur seperti di proposal
@@ -136,6 +140,7 @@ export function LandingPage() {
   const base = import.meta.env.BASE_URL;
   const [menuOpen, setMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [formNotice, setFormNotice] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -252,7 +257,7 @@ export function LandingPage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-3">
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/login')}
               className="w-full sm:w-auto px-6 py-3.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm lg:text-base font-bold rounded-xl shadow-lg shadow-bpjs-600/25 hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
             >
               Coba Command Center (Demo)
@@ -269,7 +274,7 @@ export function LandingPage() {
           </div>
 
           <p className="text-xs text-slate-400 mb-8 text-balance">
-            *Command Center berjalan dalam Mode Demo dengan data klaim simulasi untuk keperluan Healthkathon 2026.
+            *Command Center berjalan dalam Mode Demo dengan 2.000 klaim sampel (ID pasien dipseudonimkan) untuk keperluan Healthkathon 2026. Hasil pengukuran memakai data sintetis terpisah.
           </p>
 
           {/* Feature row */}
@@ -522,7 +527,7 @@ export function LandingPage() {
                 Command Center yang Sudah Bisa Dicoba
               </h2>
               <p className="text-slate-500 leading-relaxed mb-6 text-balance">
-                Bukan sekadar mockup — prototype BILL GATES berjalan dengan data sintetis. Masuk memerlukan akun berperan (lihat dashboard peserta untuk akun demo juri).
+                Bukan sekadar mockup — prototype BILL GATES berjalan dengan 2.000 klaim sampel yang ID pasiennya dipseudonimkan. Masuk memerlukan akun berperan; akun demo diberikan kepada juri/penguji.
               </p>
 
               <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-8 max-w-md mx-auto lg:mx-0">
@@ -535,14 +540,14 @@ export function LandingPage() {
               </ul>
 
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/login')}
                 className="w-full sm:w-auto px-6 py-3.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm lg:text-base font-bold rounded-xl shadow-lg shadow-bpjs-600/25 hover:shadow-xl transition-all inline-flex items-center justify-center gap-2 group"
               >
                 Masuk Command Center (Demo)
                 <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </button>
               <p className="text-xs text-slate-400 mt-3">
-                *Berjalan dalam Mode Demo dengan data klaim sintetis. Login diperlukan.
+                *Berjalan dalam Mode Demo dengan data klaim sampel. Login diperlukan.
               </p>
             </div>
 
@@ -550,7 +555,7 @@ export function LandingPage() {
             <div className="relative rounded-2xl overflow-hidden border border-slate-100 shadow-xl">
               <img
                 src={`${base}images/dashboard.png`}
-                alt="Dashboard Pusat Kendali BILL GATES - Mode Demo dengan data klaim simulasi"
+                alt="Dashboard Pusat Kendali BILL GATES - Mode Demo dengan data klaim sampel"
                 className="w-full object-cover"
               />
             </div>
@@ -559,7 +564,7 @@ export function LandingPage() {
           <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-5 mt-10">
             <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
             <p className="text-sm text-amber-800 leading-relaxed">
-              <span className="font-bold">Soal angka di tangkapan layar:</span> angka pada dashboard (mis. 12.458 klaim) adalah tampilan demo, bukan hasil pengukuran. Hasil pengukuran yang sebenarnya ada pada bagian Validasi di bawah, dari skrip evaluasi yang bisa dijalankan ulang (<code>npm run eval</code>).
+              <span className="font-bold">Soal angka di tangkapan layar:</span> angka pada dashboard (mis. 12.458 klaim) adalah tampilan demo, bukan hasil pengukuran, dan berbeda dengan 2.000 klaim sampel yang kini dimuat prototype. Angka KPI di dashboard adalah komposisi data sampel, bukan keluaran deteksi. Hasil pengukuran yang sebenarnya ada pada bagian Validasi di bawah, dari skrip evaluasi yang bisa dijalankan ulang (<code>npm run eval</code>).
             </p>
           </div>
       </section>
@@ -594,7 +599,7 @@ export function LandingPage() {
         <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-5">
           <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
           <p className="text-sm text-amber-800 leading-relaxed">
-            <span className="font-bold">Kejujuran soal keterbatasan:</span> semua angka berasal dari data sintetis dan verifikator simulasi (keliru 5%), bukan data atau verifikator BPJS sungguhan. Pada 200 keputusan, precision naik tetapi recall turun ke ±84% — sebagian duplikat asli ikut tersaring. Deteksi anomali biaya (upcoding) belum divalidasi. Parameter akan dikalibrasi dengan Data Sampel BPJS dan diuji pada fase pilot.</p>
+            <span className="font-bold">Kejujuran soal keterbatasan:</span> semua angka di bagian ini berasal dari data sintetis (terpisah dari klaim sampel pada demo) dan verifikator simulasi (keliru 5%), bukan data atau verifikator BPJS sungguhan. Pada 200 keputusan, precision naik tetapi recall turun ke ±84% — sebagian duplikat asli ikut tersaring. Deteksi anomali biaya (upcoding) belum divalidasi. Parameter akan dikalibrasi dengan Data Sampel BPJS dan diuji pada fase pilot.</p>
         </div>
       </section>
 
@@ -671,7 +676,7 @@ export function LandingPage() {
 
           {/* Contact form */}
           <form
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={(e) => { e.preventDefault(); setFormNotice(true); }}
             className="lg:col-span-3 bg-white border border-slate-100 rounded-2xl p-6 lg:p-8 shadow-sm space-y-4"
           >
             <div className="grid sm:grid-cols-2 gap-4">
@@ -715,6 +720,11 @@ export function LandingPage() {
               Kirim Pesan
               <ChevronRight size={18} />
             </button>
+            {formNotice && (
+              <p role="status" className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3">
+                Mode demo: formulir ini belum terhubung ke layanan pengiriman, sehingga pesan tidak terkirim.
+              </p>
+            )}
           </form>
         </div>
       </section>
