@@ -29,7 +29,6 @@ interface NavItemConfig {
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   path: string;
-  badge?: number;
 }
 
 interface NavSection {
@@ -42,9 +41,9 @@ const navSections: NavSection[] = [
     section: 'UTAMA',
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-      { label: 'Monitoring Klaim', icon: Activity, path: '/claims', badge: 12 },
-      { label: 'Deteksi Tagihan Ganda', icon: Copy, path: '/duplicate-detection', badge: 43 },
-      { label: 'Deteksi Anomali', icon: AlertTriangle, path: '/anomalies', badge: 8 },
+      { label: 'Monitoring Klaim', icon: Activity, path: '/claims' },
+      { label: 'Deteksi Tagihan Ganda', icon: Copy, path: '/duplicate-detection' },
+      { label: 'Deteksi Anomali', icon: AlertTriangle, path: '/anomalies' },
       { label: 'Radar Risiko Fraud', icon: ScanLine, path: '/risk-radar' },
       { label: 'Model Belajar', icon: Brain, path: '/learning' },
     ],
@@ -52,7 +51,7 @@ const navSections: NavSection[] = [
   {
     section: 'INVESTIGASI',
     items: [
-      { label: 'Pusat Verifikasi', icon: CheckCircle, path: '/verification', badge: 86 },
+      { label: 'Pusat Verifikasi', icon: CheckCircle, path: '/verification' },
       { label: 'Investigasi', icon: Search, path: '/investigation' },
     ],
   },
@@ -73,10 +72,11 @@ const navSections: NavSection[] = [
 interface NavItemProps {
   item: NavItemConfig;
   collapsed: boolean;
+  badge?: number;
   onClick?: () => void;
 }
 
-function NavItem({ item, collapsed, onClick }: NavItemProps) {
+function NavItem({ item, collapsed, badge, onClick }: NavItemProps) {
   const location = useLocation();
   const isActive = location.pathname === item.path;
   const Icon = item.icon;
@@ -96,19 +96,19 @@ function NavItem({ item, collapsed, onClick }: NavItemProps) {
       {!collapsed && (
         <>
           <span className="flex-1 truncate">{item.label}</span>
-          {item.badge !== undefined && item.badge > 0 && (
+          {badge !== undefined && badge > 0 && (
             <span className={cn(
               'flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center',
               isActive
                 ? 'bg-white text-green-700'
                 : 'bg-white/20 text-white'
             )}>
-              {item.badge}
+              {badge > 999 ? '999+' : badge}
             </span>
           )}
         </>
       )}
-      {collapsed && item.badge !== undefined && item.badge > 0 && (
+      {collapsed && badge !== undefined && badge > 0 && (
         <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-red-400" />
       )}
       {/* Tooltip for collapsed */}
@@ -117,7 +117,7 @@ function NavItem({ item, collapsed, onClick }: NavItemProps) {
           opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50
           shadow-lg transition-opacity duration-150 border border-slate-700">
           {item.label}
-          {item.badge ? ` (${item.badge})` : ''}
+          {badge ? ` (${badge})` : ''}
         </div>
       )}
     </NavLink>
@@ -128,14 +128,31 @@ function NavItem({ item, collapsed, onClick }: NavItemProps) {
 // Sidebar Component
 // ─────────────────────────────────────────────
 
+interface BadgeCounts {
+  claims: number;
+  duplicates: number;
+  anomalies: number;
+  verification: number;
+}
+
 interface SidebarProps {
   collapsed: boolean;
   onToggleCollapse: () => void;
   mobileOpen: boolean;
   onMobileClose: () => void;
+  badgeCounts: BadgeCounts;
 }
 
-export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose }: SidebarProps) {
+/** Peta path → badge count dinamis */
+function getBadge(path: string, counts: BadgeCounts): number | undefined {
+  if (path === '/claims') return counts.claims;
+  if (path === '/duplicate-detection') return counts.duplicates;
+  if (path === '/anomalies') return counts.anomalies;
+  if (path === '/verification') return counts.verification;
+  return undefined;
+}
+
+export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose, badgeCounts }: SidebarProps) {
   const { canDecide, canInvestigate, canViewReports, canManageSystem, logout } = useAuth();
   const navigate = useNavigate();
   
@@ -238,6 +255,7 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
                     key={item.path}
                     item={item}
                     collapsed={collapsed}
+                    badge={getBadge(item.path, badgeCounts)}
                     onClick={onMobileClose}
                   />
                 ))}

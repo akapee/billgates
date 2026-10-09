@@ -3,10 +3,12 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { cn } from '../../lib/utils';
+import { useBadgeCounts } from '../../hooks/useBadgeCounts';
 
 export function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const badgeCounts = useBadgeCounts();
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
@@ -16,6 +18,7 @@ export function AppLayout() {
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         mobileOpen={mobileMenuOpen}
         onMobileClose={() => setMobileMenuOpen(false)}
+        badgeCounts={badgeCounts}
       />
 
       {/* Main Content Area */}
