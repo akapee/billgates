@@ -63,7 +63,7 @@ export interface ClaimData {
   patientName: string;
   providerId: string;
   providerName: string;
-  providerType: 'FKTP' | 'FKRTL';
+  providerType: 'FKTP' | 'FKRTL' | 'Non-Kapitasi';
   diagnosis: string;
   diagnosisCode: string;
   procedure: string;
