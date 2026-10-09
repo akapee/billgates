@@ -11,11 +11,9 @@ import { Investigation } from './pages/Investigation';
 import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
 import { LandingPage } from './pages/LandingPage';
-import { Login } from './pages/Login';
 import { AuditLog } from './pages/AuditLog';
 import { Learning } from './pages/Learning';
 import { AuthProvider } from './auth/AuthContext';
-import { RequireAuth } from './auth/RequireAuth';
 
 function App() {
   return (
@@ -26,8 +24,6 @@ function App() {
           <Route path="/" element={<LandingPage />} />
 
           {/* App Shell with Sidebar + Topbar */}
-          <Route path="/login" element={<Login />} />
-
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/claims" element={<Claims />} />
