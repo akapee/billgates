@@ -17,6 +17,7 @@ import {
   X,
   ScrollText,
   Brain,
+  Download,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -244,7 +245,25 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
             </div>
           ))}
 
-          <div className="mt-3 pt-3 border-t border-white/10">
+          <div className="mt-3 pt-3 border-t border-white/10 space-y-1">
+            <a
+              href={`${import.meta.env.BASE_URL}buku_panduan_pengguna.pdf`}
+              download
+              title={collapsed ? 'Unduh Panduan' : undefined}
+              className={cn(
+                'sidebar-item group relative w-full text-blue-100 hover:bg-blue-500/20 hover:text-white',
+                collapsed && 'justify-center px-2'
+              )}
+            >
+              <Download size={18} className="flex-shrink-0" />
+              {!collapsed && <span className="flex-1">Unduh Panduan</span>}
+              {collapsed && (
+                <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-lg transition-opacity duration-150 border border-slate-700">
+                  Unduh Panduan
+                </div>
+              )}
+            </a>
+            
             <button
               type="button"
               onClick={doLogout}
