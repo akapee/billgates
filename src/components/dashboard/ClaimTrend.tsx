@@ -11,13 +11,15 @@ import {
 } from 'recharts';
 import { useClaims } from '../../hooks/useClaims';
 import { cn } from '../../lib/utils';
-import type { ChartFilter } from '../../types';
+
+type TrendFilter = '7d' | '30d' | '90d' | 'all';
 
 // ─────────────────────────────────────────────
 // Filter Buttons
 // ─────────────────────────────────────────────
 
-const FILTERS: { key: ChartFilter; label: string }[] = [
+const FILTERS: { key: TrendFilter; label: string }[] = [
+  { key: 'all', label: 'Semua Data' },
   { key: '7d', label: '7 Hari' },
   { key: '30d', label: '30 Hari' },
   { key: '90d', label: '90 Hari' },
@@ -53,20 +55,32 @@ function CustomTooltip({ active, payload, label }: any) {
 // ─────────────────────────────────────────────
 
 export function ClaimTrend() {
-  const [activeFilter, setActiveFilter] = useState<ChartFilter>('30d');
+  const [activeFilter, setActiveFilter] = useState<TrendFilter>('all');
   const { claims } = useClaims();
-  const days = activeFilter === '7d' ? 7 : activeFilter === '30d' ? 30 : 90;
   const data = React.useMemo(() => {
+    if (activeFilter === 'all') {
+      const now = new Date();
+      const start = new Date(2022, 0, 1);
+      const months = (now.getFullYear() - start.getFullYear()) * 12 + now.getMonth() - start.getMonth() + 1;
+      return Array.from({ length: months }, (_, index) => {
+        const date = new Date(2022, index, 1);
+        const sameMonth = claims.filter(claim => claim.date.getFullYear() === date.getFullYear() && claim.date.getMonth() === date.getMonth());
+        return { date: date.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }), totalClaims: sameMonth.length, flaggedClaims: sameMonth.filter(claim => claim.riskScore >= 60).length, criticalClaims: sameMonth.filter(claim => claim.riskScore >= 80).length };
+      });
+    }
+    const days = activeFilter === '7d' ? 7 : activeFilter === '30d' ? 30 : 90;
     const start = new Date(); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - days + 1);
     return Array.from({ length: days }, (_, index) => {
       const date = new Date(start); date.setDate(start.getDate() + index);
       const sameDay = claims.filter(claim => claim.date.toDateString() === date.toDateString());
       return { date: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }), totalClaims: sameDay.length, flaggedClaims: sameDay.filter(claim => claim.riskScore >= 60).length, criticalClaims: sameDay.filter(claim => claim.riskScore >= 80).length };
     });
-  }, [claims, days]);
+  }, [claims, activeFilter]);
 
   // For 90d, sample every 3rd point to avoid overcrowding
-  const displayData = activeFilter === '90d'
+  const displayData = activeFilter === 'all'
+    ? data
+    : activeFilter === '90d'
     ? data.filter((_, i) => i % 3 === 0)
     : activeFilter === '30d'
       ? data.filter((_, i) => i % 2 === 0)

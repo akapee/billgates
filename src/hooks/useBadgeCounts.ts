@@ -24,9 +24,9 @@ export function useBadgeCounts() {
     // Monitoring Klaim: klaim dengan riskScore >= 60
     const claimsBadge = claims.filter((c) => c.riskScore >= 60).length;
 
-    // Deteksi Tagihan Ganda: kandidat duplikat belum ditinjau
+    // Deteksi Tagihan Ganda: kandidat duplikat yang belum diajukan ke Pusat Verifikasi
     const duplicatesBadge = candidates.filter(
-      (item) => !decisions.has(decisionKey('duplicate_review', item.claim.id))
+      (item) => !decisions.has(decisionKey('verification_request', item.claim.id))
     ).length;
 
     // Deteksi Anomali: klaim beranomali belum ditindaklanjuti

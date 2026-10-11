@@ -13,10 +13,11 @@ export type AuditAction =
   | 'session_timeout'
   | 'view_claim'
   | 'export_csv'
-  | 'decision';
+  | 'decision'
+  | 'provider_action';
 
-export type DecisionKind = 'verification' | 'duplicate_review' | 'anomaly_followup';
-export type DecisionValue = 'approved' | 'rejected' | 'reviewed' | 'resolved';
+export type DecisionKind = 'verification' | 'verification_request' | 'duplicate_review' | 'anomaly_followup';
+export type DecisionValue = 'approved' | 'rejected' | 'pending' | 'reviewed' | 'resolved';
 
 export interface DecisionRecord {
   firestoreId?: string;
@@ -72,6 +73,32 @@ export async function recordDecision(input: { claimId: string; kind: DecisionKin
     action: 'decision',
     claimId: input.claimId,
     detail: `${input.kind}:${input.decision} — ${reason}`,
+    at: serverTimestamp(),
+  });
+  await batch.commit();
+}
+
+/** Catat eskalasi faskes. Aksi ini tidak terhubung ke sistem pembayaran. */
+export async function recordProviderAction(input: { providerName: string; action: 'audit' | 'payment_hold_request'; reason: string }) {
+  const user = auth.currentUser || { uid: 'mock-user-123', email: 'demo@bpjs.go.id' };
+  const reason = input.reason.trim();
+  if (reason.length < 5) throw new Error('Alasan minimal 5 karakter');
+
+  const batch = writeBatch(db);
+  batch.set(doc(collection(db, 'providerActions')), {
+    providerName: input.providerName,
+    action: input.action,
+    reason,
+    uid: user.uid,
+    email: user.email ?? '',
+    at: serverTimestamp(),
+  });
+  batch.set(doc(collection(db, 'auditLogs')), {
+    uid: user.uid,
+    email: user.email ?? '',
+    action: 'provider_action',
+    claimId: null,
+    detail: `${input.action}:${input.providerName} - ${reason}`,
     at: serverTimestamp(),
   });
   await batch.commit();

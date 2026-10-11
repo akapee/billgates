@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Copy, CheckCircle2, Search } from 'lucide-react';
 import { useClaims, type DatabaseClaim } from '../hooks/useClaims';
 import { formatCurrency } from '../lib/utils';
@@ -14,13 +15,14 @@ type ReviewableClaim = DatabaseClaim & { duplicateReviewed?: boolean };
 
 export function DuplicateDetection() {
   const { claims, loading, error } = useClaims();
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [savingId, setSavingId] = useState<string | null>(null);
   const { decisions } = useDecisions();
   const { canDecide } = useAuth();
   const [saveError, setSaveError] = useState<string | null>(null);
   const { candidates, model } = useLearnedModel(claims);
-  const isReviewed = (id: string) => decisions.has(decisionKey('duplicate_review', id));
+  const isReviewed = (id: string) => decisions.has(decisionKey('verification_request', id));
   const visibleCandidates = useMemo(
     () =>
       candidates.filter((item) =>
@@ -30,11 +32,21 @@ export function DuplicateDetection() {
       ),
     [candidates, query]
   );
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  React.useEffect(() => { setCurrentPage(1); }, [query]);
+  const totalPages = Math.ceil(visibleCandidates.length / pageSize);
+  const paginatedCandidates = visibleCandidates.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const reviewedCount = candidates.filter(item => isReviewed(item.claim.id)).length;
   const review = async (claim: ReviewableClaim) => {
     setSavingId(claim.firestoreId);
     setSaveError(null);
-    try { await recordDecision({ claimId: claim.id, kind: 'duplicate_review', decision: 'reviewed', reason: 'Kandidat duplikat ditinjau verifikator' }); }
+    try {
+      await recordDecision({ claimId: claim.id, kind: 'verification_request', decision: 'pending', reason: 'Kandidat tagihan ganda diajukan untuk verifikasi' });
+      navigate('/verification', { state: { claimId: claim.id, source: 'duplicate' } });
+    }
     catch (err) { setSaveError(err instanceof Error ? err.message : 'Gagal menyimpan'); }
     finally { setSavingId(null); }
   };
@@ -45,7 +57,7 @@ export function DuplicateDetection() {
         <h2 className="text-2xl font-bold">Deteksi Tagihan Ganda</h2>
         <p className="mt-1.5 text-sm text-slate-500">
           Kandidat dihitung otomatis dari kesamaan ID pasien, kode diagnosis (ICD-10), jenis tindakan, dan
-          rentang waktu pengajuan (jendela 21 hari) — perlu diverifikasi oleh analis sebelum klaim disetujui.
+          rentang waktu pengajuan (jendela 21 hari). Kandidat yang ditindaklanjuti akan dibuka di Pusat Verifikasi untuk keputusan final.
         </p>
         <p className="mt-1 text-xs text-slate-400">{model.active ? `Penyaringan memakai model hasil belajar dari ${model.n} keputusan verifikator.` : 'Penyaringan memakai aturan awal (skor ≥ 80); model belajar aktif setelah 30 keputusan.'}</p>
       </div>
@@ -53,11 +65,11 @@ export function DuplicateDetection() {
       {error ? <div className="card p-5 text-sm text-red-700 bg-red-50">Gagal memuat Firestore: {error}</div> : loading ? <div className="card p-10 text-center text-sm text-slate-500">Memuat kandidat dari Firestore...</div> : <><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Metric label="Kandidat Ditemukan" value={candidates.length.toString()} color="text-red-600" />
         <Metric
-          label="Belum Ditinjau"
+          label="Belum Diajukan"
           value={(candidates.length - reviewedCount).toString()}
           color="text-orange-600"
         />
-        <Metric label="Sudah Ditinjau" value={reviewedCount.toString()} color="text-emerald-600" />
+        <Metric label="Menunggu Verifikasi" value={reviewedCount.toString()} color="text-blue-600" />
       </div>
       <div className="card overflow-hidden">
         <div className="p-4 border-b border-slate-100">
@@ -72,7 +84,7 @@ export function DuplicateDetection() {
           </div>
         </div>
         <div className="divide-y divide-slate-100">
-          {visibleCandidates.map((item) => {
+          {paginatedCandidates.map((item) => {
             const done = isReviewed(item.claim.id);
             return (
               <div
@@ -113,7 +125,7 @@ export function DuplicateDetection() {
                   <RiskBadge level={item.claim.riskLevel} />
                   {done ? (
                     <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
-                      <CheckCircle2 size={14} /> Ditinjau
+                      <CheckCircle2 size={14} /> Menunggu Verifikasi
                     </span>
                   ) : !canDecide ? (
                     <span className="text-xs text-slate-400">Hanya verifikator</span>
@@ -123,7 +135,7 @@ export function DuplicateDetection() {
                       onClick={() => review(item.claim as ReviewableClaim)}
                       className="px-3 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
                     >
-                      {savingId === (item.claim as ReviewableClaim).firestoreId ? 'Menyimpan...' : 'Tinjau Kandidat'}
+                      {savingId === (item.claim as ReviewableClaim).firestoreId ? 'Menyimpan...' : 'Tindak Lanjuti'}
                     </button>
                   )}
                 </div>
@@ -133,6 +145,29 @@ export function DuplicateDetection() {
         </div>
         {visibleCandidates.length === 0 && (
           <p className="p-10 text-center text-sm text-slate-500">Kandidat tidak ditemukan.</p>
+        )}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100 bg-slate-50">
+            <span className="text-xs text-slate-500 font-medium">
+              Menampilkan {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, visibleCandidates.length)} dari {visibleCandidates.length} kandidat
+            </span>
+            <div className="flex gap-2">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Sebelumnya
+              </button>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Selanjutnya
+              </button>
+            </div>
+          </div>
         )}
       </div></>}
     </div>

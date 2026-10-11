@@ -13,6 +13,7 @@ import { Settings } from './pages/Settings';
 import { LandingPage } from './pages/LandingPage';
 import { AuditLog } from './pages/AuditLog';
 import { Learning } from './pages/Learning';
+import { UserManagement } from './pages/UserManagement';
 import { AuthProvider } from './auth/AuthContext';
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
             <Route path="/learning" element={<Learning />} />
             <Route path="/audit-log" element={<AuditLog />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/user-management" element={<UserManagement />} />
           </Route>
 
           {/* 404 Fallback */}

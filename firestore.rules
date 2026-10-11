@@ -1,8 +1,8 @@
 rules_version = '2';
 
 // Kontrol akses BILL GATES. Prinsip: tolak semua secara default; buka hanya yang perlu.
-//   admin    : kelola data demo (seed), pengaturan, baca log audit
-//   verifier : baca data klaim, buat keputusan
+//   superadmin : kelola data demo, pengaturan, baca log audit
+//   verifikator : baca data klaim, buat keputusan
 //   auditor  : baca data klaim + log audit (tanpa membuat keputusan)
 // Peran disimpan di koleksi `staff/{uid}` dan hanya bisa diubah lewat Firebase Console / Admin SDK,
 // TIDAK dari aplikasi (allow write: if false).
@@ -13,9 +13,9 @@ service cloud.firestore {
     function staffDoc() { return get(/databases/$(database)/documents/staff/$(request.auth.uid)); }
     function hasRole() { return signedIn() && exists(/databases/$(database)/documents/staff/$(request.auth.uid)); }
     function role() { return staffDoc().data.role; }
-    function isAdmin() { return hasRole() && role() == 'admin'; }
-    function isVerifier() { return hasRole() && role() in ['admin', 'verifier']; }
-    function isAuditor() { return hasRole() && role() in ['admin', 'auditor']; }
+    function isAdmin() { return hasRole() && role() == 'superadmin'; }
+    function isVerifier() { return hasRole() && role() in ['superadmin', 'verifikator']; }
+    function isAuditor() { return hasRole() && role() in ['superadmin', 'auditor']; }
 
     // Peran: pengguna hanya boleh membaca dokumennya sendiri
     match /staff/{uid} {
@@ -42,9 +42,23 @@ service cloud.firestore {
         && request.resource.data.reason is string
         && request.resource.data.reason.size() >= 5
         && request.resource.data.reason.size() <= 500
-        && request.resource.data.kind in ['verification', 'duplicate_review', 'anomaly_followup']
-        && request.resource.data.decision in ['approved', 'rejected', 'reviewed', 'resolved'];
+        && request.resource.data.kind in ['verification', 'verification_request', 'duplicate_review', 'anomaly_followup']
+        && request.resource.data.decision in ['approved', 'rejected', 'pending', 'reviewed', 'resolved'];
       allow delete: if false;
+    }
+
+    // Eskalasi faskes oleh auditor/superadmin; hanya catatan tindak lanjut, bukan pencairan langsung.
+    match /providerActions/{id} {
+      allow create: if isAuditor()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.at == request.time
+        && request.resource.data.providerName is string
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() >= 5
+        && request.resource.data.reason.size() <= 500
+        && request.resource.data.action in ['audit', 'payment_hold_request'];
+      allow read: if isAuditor();
+      allow update, delete: if false;
     }
 
     // Log audit: append-only. Siapa pun yang punya peran boleh MENULIS atas namanya sendiri;
@@ -53,7 +67,7 @@ service cloud.firestore {
       allow create: if hasRole()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.at == request.time
-        && request.resource.data.action in ['login', 'logout', 'session_timeout', 'view_claim', 'export_csv', 'decision'];
+        && request.resource.data.action in ['login', 'logout', 'session_timeout', 'view_claim', 'export_csv', 'decision', 'provider_action'];
       allow read: if isAuditor();
       allow update, delete: if false;
     }

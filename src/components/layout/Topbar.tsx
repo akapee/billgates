@@ -37,6 +37,7 @@ const routeLabels: Record<string, { parent: string; current: string }> = {
   '/learning': { parent: 'Deteksi', current: 'Model Belajar' },
   '/audit-log': { parent: 'Analitik', current: 'Log Audit' },
   '/settings': { parent: 'Sistem', current: 'Pengaturan' },
+  '/user-management': { parent: 'Sistem', current: 'Manajemen User' },
 };
 
 // ─────────────────────────────────────────────
@@ -144,8 +145,6 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
   const { role, setMockRole } = useAuth();
   const currentRoleConfig = roleConfig.find(r => r.value === role) || roleConfig[3];
   const RoleIcon = currentRoleConfig.icon;
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
   const [notifOpen, setNotifOpen] = useState(false);
   const [roleOpen, setRoleOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -188,31 +187,6 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
       {/* Demo Badge */}
       <DemoBadge variant="topbar" className="hidden sm:inline-flex flex-shrink-0" />
 
-      {/* Search */}
-      <div className={cn(
-        'relative flex items-center transition-all duration-200',
-        'hidden md:flex',
-        searchFocused ? 'w-64' : 'w-48'
-      )}>
-        <Search size={15} className="absolute left-3 text-slate-400 pointer-events-none" />
-        <input
-          type="text"
-          placeholder="Cari klaim..."
-          value={searchValue}
-          onChange={e => setSearchValue(e.target.value)}
-          onFocus={() => setSearchFocused(true)}
-          onBlur={() => setSearchFocused(false)}
-          className={cn(
-            'w-full pl-9 pr-4 py-2 text-sm rounded-lg border transition-all duration-200',
-            'placeholder:text-slate-400 text-slate-900',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500/30',
-            searchFocused
-              ? 'border-blue-300 bg-white shadow-sm'
-              : 'border-slate-200 bg-slate-50 hover:border-slate-300'
-          )}
-        />
-      </div>
-
       {/* Notification Bell */}
       <div className="relative flex-shrink-0" ref={notifRef}>
         <button
@@ -234,16 +208,9 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
         <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
       </div>
 
-      {/* Role Switcher */}
+      {/* Pemilih peran mode demo */}
       <div className="relative flex-shrink-0" ref={roleRef}>
-        <button
-          onClick={() => setRoleOpen(!roleOpen)}
-          className={cn(
-            'flex items-center gap-2.5 pl-3 pr-2 py-1.5 border-l border-slate-200 transition-colors',
-            'hover:bg-slate-50 rounded-r-lg',
-            roleOpen && 'bg-slate-50'
-          )}
-        >
+        <button onClick={() => setRoleOpen(!roleOpen)} className={cn('flex items-center gap-2.5 pl-3 pr-2 py-1.5 border-l border-slate-200 transition-colors hover:bg-slate-50 rounded-r-lg', roleOpen && 'bg-slate-50')}>
           <div className={cn('w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0', currentRoleConfig.bgColor, 'border')}>
             <RoleIcon size={15} className={currentRoleConfig.color} />
           </div>
@@ -253,41 +220,7 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
           </div>
           <ChevronDown size={14} className={cn('hidden sm:block text-slate-400 transition-transform', roleOpen && 'rotate-180')} />
         </button>
-
-        {/* Role Dropdown */}
-        {roleOpen && (
-          <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden animate-fade-in">
-            <div className="px-4 py-3 border-b border-slate-100">
-              <h3 className="font-semibold text-slate-900 text-sm">Ganti Peran Akses</h3>
-              <p className="text-[11px] text-slate-500 mt-0.5">Pilih peran untuk melihat tampilan & akses menu yang berbeda.</p>
-            </div>
-            <div className="p-2">
-              {roleConfig.map((rc) => {
-                const Icon = rc.icon;
-                const isActive = role === rc.value;
-                return (
-                  <button
-                    key={rc.value}
-                    onClick={() => { setMockRole(rc.value); setRoleOpen(false); }}
-                    className={cn(
-                      'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all',
-                      isActive ? cn(rc.bgColor, 'border') : 'hover:bg-slate-50 border border-transparent'
-                    )}
-                  >
-                    <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0', isActive ? 'bg-white shadow-sm' : 'bg-slate-100')}>
-                      <Icon size={18} className={isActive ? rc.color : 'text-slate-400'} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={cn('text-sm font-semibold', isActive ? 'text-slate-900' : 'text-slate-700')}>{rc.label}</p>
-                      <p className="text-[11px] text-slate-500">{rc.description}</p>
-                    </div>
-                    {isActive && <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        {roleOpen && <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden animate-fade-in"><div className="px-4 py-3 border-b border-slate-100"><h3 className="font-semibold text-slate-900 text-sm">Ganti Peran Akses</h3><p className="text-[11px] text-slate-500 mt-0.5">Mode demo sementara - pilih peran untuk melihat akses menu.</p></div><div className="p-2">{roleConfig.map((rc) => { const Icon = rc.icon; const isActive = role === rc.value; return <button key={rc.value} onClick={() => { setMockRole(rc.value); setRoleOpen(false); }} className={cn('w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all', isActive ? cn(rc.bgColor, 'border') : 'hover:bg-slate-50 border border-transparent')}><div className={cn('w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0', isActive ? 'bg-white shadow-sm' : 'bg-slate-100')}><Icon size={18} className={isActive ? rc.color : 'text-slate-400'} /></div><div className="flex-1 min-w-0"><p className={cn('text-sm font-semibold', isActive ? 'text-slate-900' : 'text-slate-700')}>{rc.label}</p><p className="text-[11px] text-slate-500">{rc.description}</p></div>{isActive && <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />}</button>; })}</div></div>}
       </div>
     </header>
   );

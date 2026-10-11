@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { CheckCircle, XCircle, FileText } from 'lucide-react';
 import { useClaims } from '../hooks/useClaims';
 import { useDecisions } from '../hooks/useDecisions';
@@ -11,17 +12,38 @@ import { RiskBadge } from '../components/ui/Badge';
 // entri log audit, sehingga tidak hilang saat halaman di-refresh.
 export function Verification() {
   const { claims, loading, error } = useClaims();
+  const location = useLocation();
   const { decisions } = useDecisions();
   const { canDecide } = useAuth();
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
 
-  const queue = claims.filter((claim) => claim.riskScore >= 60);
+  const openedState = location.state as { claimId?: string; source?: 'anomaly' | 'duplicate' } | null;
+  const openedClaimId = openedState?.claimId;
+  const openedClaim = claims.find(claim => claim.id === openedClaimId);
+  const requestedClaimIds = Array.from(decisions.values()).filter(record => record.kind === 'verification_request').map(record => record.claimId);
+  const requestedClaims = requestedClaimIds.map(id => claims.find(claim => claim.id === id)).filter((claim): claim is typeof claims[number] => Boolean(claim));
+  const queue = [
+    ...(openedClaim && !requestedClaimIds.includes(openedClaim.id) ? [openedClaim] : []),
+    ...requestedClaims.filter(claim => claim.id !== openedClaimId),
+  ];
   const decisionOf = (id: string) => decisions.get(decisionKey('verification', id));
   const pending = queue.filter((claim) => !decisionOf(claim.id));
   const approved = queue.filter((claim) => decisionOf(claim.id)?.decision === 'approved').length;
   const rejected = queue.filter((claim) => decisionOf(claim.id)?.decision === 'rejected').length;
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const filteredQueue = queue.filter((claim) => {
+    const decision = decisionOf(claim.id)?.decision;
+    return filter === 'all' || (filter === 'pending' && !decision) || decision === filter;
+  });
+  useEffect(() => { setCurrentPage(1); }, [filter]);
+  const totalPages = Math.ceil(filteredQueue.length / pageSize);
+  const paginatedQueue = filteredQueue.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const decide = async (claimId: string, decision: 'approved' | 'rejected') => {
     setBusyId(claimId); setSaveError(null);
@@ -37,22 +59,32 @@ export function Verification() {
     <div className="p-6 max-w-[1600px] mx-auto">
       <div className="mb-6">
         <h2 className="text-2xl font-bold">Pusat Verifikasi</h2>
-        <p className="mt-1.5 text-sm text-slate-500">Tinjau bukti dan ambil keputusan atas klaim dengan risiko tinggi. Setiap keputusan wajib disertai alasan dan tercatat di log audit.</p>
+        <p className="mt-1.5 text-sm text-slate-500">Antrean berisi klaim yang diajukan dari Deteksi Tagihan Ganda atau Deteksi Anomali. Setiap keputusan wajib disertai alasan dan tercatat di log audit.</p>
       </div>
       {!canDecide && <div className="mb-4 p-3 rounded-lg bg-slate-100 text-sm text-slate-600">Peran Anda hanya dapat melihat antrean. Keputusan dibuat oleh Verifikator.</div>}
       {saveError && <div role="alert" className="mb-4 p-3 rounded-lg bg-red-50 text-sm text-red-700">{saveError}</div>}
+      {openedClaim && <div className="mb-4 p-3 rounded-lg bg-blue-50 text-sm text-blue-700">Klaim {openedState?.source === 'duplicate' ? 'kandidat tagihan ganda' : 'anomali'} <strong>{openedClaim.id}</strong> dibuka untuk verifikasi dan keputusan final.</div>}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Metric label="Menunggu Verifikasi" value={pending.length.toString()} color="text-orange-600" />
         <Metric label="Disetujui" value={approved.toString()} color="text-emerald-600" />
         <Metric label="Ditolak" value={rejected.toString()} color="text-red-600" />
       </div>
+      <div className="card p-4 mb-6 flex flex-wrap items-center gap-2">
+        <span className="text-sm font-semibold text-slate-700 mr-1">Filter status:</span>
+        {([
+          ['all', 'Semua'],
+          ['pending', 'Menunggu Verifikasi'],
+          ['approved', 'Disetujui'],
+          ['rejected', 'Ditolak'],
+        ] as const).map(([value, label]) => <button key={value} onClick={() => setFilter(value)} className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-colors ${filter === value ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{label}</button>)}
+      </div>
       <div className="space-y-4">
-        {queue.map((claim) => {
+        {paginatedQueue.map((claim) => {
           const rec = decisionOf(claim.id);
           const reason = reasons[claim.id] ?? '';
           const reasonOk = reason.trim().length >= 5;
           return (
-            <div key={claim.id} className="card p-5 flex flex-col lg:flex-row gap-5 lg:items-center">
+            <div key={claim.id} className={`card p-5 flex flex-col lg:flex-row gap-5 lg:items-center ${claim.id === openedClaimId ? 'ring-2 ring-blue-300' : ''}`}>
               <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0"><FileText size={21} /></div>
               <div className="flex-1">
                 <div className="flex flex-wrap gap-2 items-center">
@@ -87,6 +119,32 @@ export function Verification() {
           );
         })}
       </div>
+      {filteredQueue.length === 0 && <div className="card p-10 text-center text-sm text-slate-500">Tidak ada klaim dengan status ini.</div>}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-1 py-4">
+          <span className="text-xs text-slate-500 font-medium">
+            Menampilkan {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filteredQueue.length)} dari {filteredQueue.length} klaim
+          </span>
+          <div className="flex gap-2">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Sebelumnya
+            </button>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Selanjutnya
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
