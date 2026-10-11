@@ -463,7 +463,7 @@ function FlagDemo() {
             ))}
           </ul>
 
-          <div className="mt-4 min-h-[5.5rem]">
+          <div className="mt-4 min-h-[4.5rem]">
             {!decision && (
               <>
                 <div className="flex gap-2">
@@ -653,13 +653,18 @@ export function LandingPage() {
       <main>
         {/* Hero */}
         <div id="beranda" className="scroll-mt-14 border-b border-bpjs-100 bg-bpjs-50/60">
-          <div className={`${WRAP} grid items-center gap-10 pb-10 pt-10 lg:grid-cols-12 lg:gap-14 lg:pb-14 lg:pt-16`}>
+          <div className={`${WRAP} grid items-center gap-10 pb-10 pt-10 lg:grid-cols-12 lg:gap-14 lg:pb-14 lg:pt-12`}>
             <div className="lg:col-span-6">
-              <h1 className="bg-head text-balance text-4xl font-extrabold leading-[1.05] text-bpjs-950 sm:text-5xl lg:text-[3.25rem]">
-                Tangkap klaim ganda JKN sebelum dibayar.
-              </h1>
-              <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-slate-600">
-                <strong className="font-semibold text-slate-800">BILL GATES</strong> (BILLing Ganda &amp; Anomali TerEliminasi Sistem) mendeteksi tagihan ganda dan anomali dengan skor yang bisa dijelaskan, memetakan risiko faskes lewat analitik AI lokal tanpa API eksternal, dan mencatat jejak audit di setiap keputusan. Didemokan pada {fmt(SAMPLE.rows)} klaim sampel BPJS Kesehatan.
+              <h1 className="bg-head text-5xl font-extrabold leading-none text-bpjs-950 sm:text-6xl lg:text-[4.25rem]">BILL GATES</h1>
+              <p className="mt-3 text-base text-slate-600 sm:text-lg" aria-label="BILLing Ganda dan Anomali TerEliminasi Sistem">
+                <span aria-hidden="true">
+                  <b className="font-bold text-bpjs-700">BILL</b>ing <b className="font-bold text-bpjs-700">G</b>anda &amp; <b className="font-bold text-bpjs-700">A</b>nomali <b className="font-bold text-bpjs-700">T</b>er
+                  <b className="font-bold text-bpjs-700">E</b>liminasi <b className="font-bold text-bpjs-700">S</b>istem
+                </span>
+              </p>
+              <h2 className="bg-head mt-7 max-w-[22ch] text-balance text-2xl font-bold leading-tight text-bpjs-950 sm:text-3xl">Tangkap klaim ganda JKN sebelum dibayar.</h2>
+              <p className="mt-4 max-w-[52ch] text-base leading-relaxed text-slate-600">
+                Deteksi tagihan ganda dan anomali dengan skor yang bisa dijelaskan, radar risiko faskes lewat analitik AI lokal tanpa API eksternal, dan jejak audit di setiap keputusan. Didemokan pada {fmt(SAMPLE.rows)} klaim sampel BPJS Kesehatan.
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
