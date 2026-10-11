@@ -467,71 +467,65 @@ export function LandingPage() {
       </header>
 
       {/* Hero */}
-      <main id="beranda" className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-bpjs-50/70 via-white to-white">
-        <div
-          className="absolute inset-0 opacity-40 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]"
-          aria-hidden="true"
-        />
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pt-12 lg:pt-16 pb-14 lg:pb-20 grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-6 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-bpjs-500 animate-pulse" />
-              Analitik AI Lokal · Deteksi Klaim Pra-Bayar
+      <main id="beranda" className="scroll-mt-24 overflow-hidden bg-gradient-to-b from-bpjs-50/70 via-white to-white">
+        <div className="relative">
+          <div
+            className="absolute inset-0 opacity-40 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]"
+            aria-hidden="true"
+          />
+
+          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-12 lg:pt-20 pb-6 lg:pb-24">
+            <div className="text-center lg:text-left lg:max-w-[48%]">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-6 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-bpjs-500 animate-pulse" />
+                Analitik AI Lokal · Deteksi Klaim Pra-Bayar
+              </div>
+
+              <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-tight leading-[1.02] mb-3">
+                <span className="text-slate-900">BILL </span>
+                <span className="text-bpjs-600">GATES</span>
+              </h1>
+              <p className="text-base sm:text-lg font-semibold text-slate-500 mb-6 text-balance">
+                (BILLing Ganda &amp; Anomali TerEliminasi Sistem)
+              </p>
+
+              <p className="text-xl sm:text-2xl font-bold text-slate-800 mb-4 text-balance">
+                Tangkap klaim ganda JKN sebelum dibayar.
+              </p>
+              <p className="text-sm lg:text-base text-slate-500 mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0 text-balance">
+                Deteksi tagihan ganda dan anomali dengan skor yang bisa dijelaskan, radar risiko faskes lewat analitik AI lokal tanpa API eksternal, dan jejak audit di setiap keputusan. Didemokan pada {fmt(SAMPLE.rows)} klaim sampel BPJS Kesehatan.
+              </p>
+
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-4">
+                <button
+                  onClick={() => navigate('/welcome')}
+                  className="px-5 py-3 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-bpjs-600/25 hover:shadow-xl transition-all inline-flex items-center gap-2 whitespace-nowrap group"
+                >
+                  Coba Command Center (Demo)
+                  <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection('data')}
+                  className="px-5 py-3 bg-white text-slate-700 border border-slate-200 hover:border-bpjs-400 hover:text-bpjs-700 text-sm font-semibold rounded-xl transition-all whitespace-nowrap"
+                >
+                  Lihat Data Sampel
+                </button>
+              </div>
+              <p className="text-xs text-slate-400 text-balance">
+                *Mode Demo: pilih peran di halaman awal, tanpa login. Angka akurasi diukur terpisah pada data sintetis.
+              </p>
             </div>
-
-            <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-tight leading-[1.02] mb-3">
-              <span className="text-slate-900">BILL </span>
-              <span className="text-bpjs-600">GATES</span>
-            </h1>
-            <p className="text-base sm:text-lg font-semibold text-slate-500 mb-6 text-balance">
-              (BILLing Ganda &amp; Anomali TerEliminasi Sistem)
-            </p>
-
-            <p className="text-xl sm:text-2xl font-bold text-slate-800 mb-4 text-balance">
-              Satu Command Center untuk menangkap klaim ganda JKN sebelum dibayar.
-            </p>
-            <p className="text-sm lg:text-base text-slate-500 mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0 text-balance">
-              Deteksi tagihan ganda dan anomali dengan skor yang bisa dijelaskan, radar risiko faskes lewat analitik AI lokal tanpa API eksternal, alur verifikasi berbasis peran, dan jejak audit di setiap keputusan. Didemokan pada {fmt(SAMPLE.rows)} klaim sampel BPJS Kesehatan.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-4">
-              <button
-                onClick={() => navigate('/welcome')}
-                className="w-full sm:w-auto px-6 py-3.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm lg:text-base font-bold rounded-xl shadow-lg shadow-bpjs-600/25 hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
-              >
-                Masuk Command Center (Demo)
-                <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </button>
-              <a
-                href={guideHref}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full sm:w-auto px-6 py-3.5 bg-white text-slate-700 border-2 border-slate-200 hover:border-bpjs-400 hover:text-bpjs-700 text-sm lg:text-base font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <Download size={18} />
-                Panduan Alur Kerja (PDF)
-              </a>
-            </div>
-            <p className="text-xs text-slate-400 text-balance">
-              *Mode Demo: pilih peran di halaman awal, tanpa login. Angka akurasi diukur terpisah pada data sintetis.
-            </p>
           </div>
 
-          <figure>
-            <div className="relative">
-              <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-tr from-bpjs-200/60 via-transparent to-navy-200/40 blur-2xl" aria-hidden="true" />
-              <img
-                src={`${base}images/header.png`}
-                alt="Ilustrasi Command Center BILL GATES: petugas verifikasi didampingi asisten analitik di depan dashboard deteksi klaim"
-                width={1536}
-                height={1024}
-                className="relative w-full h-auto rounded-3xl shadow-2xl shadow-slate-900/15 ring-1 ring-slate-200"
-              />
-            </div>
-            <figcaption className="mt-3 text-center text-[11px] text-slate-400 text-balance">
-              Ilustrasi konsep. Angka pada gambar bukan data sistem; angka sebenarnya ada di bagian Data Sampel.
-            </figcaption>
-          </figure>
+          {/* Ilustrasi menyatu dengan latar (tepi kiri, atas, dan bawah sudah memudar di file gambar) */}
+          <img
+            src={`${base}images/header.png`}
+            alt="Ilustrasi petugas verifikasi BPJS didampingi asisten analitik yang menunjukkan analisis klaim"
+            width={960}
+            height={833}
+            className="relative z-0 block w-full h-auto lg:absolute lg:right-0 lg:top-0 lg:h-full lg:w-auto lg:max-w-[58%] lg:object-contain lg:object-right"
+          />
         </div>
 
         {/* Ringkasan */}
