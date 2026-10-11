@@ -11,6 +11,7 @@ import { Investigation } from './pages/Investigation';
 import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
 import { LandingPage } from './pages/LandingPage';
+import { Welcome } from './pages/Welcome';
 import { AuditLog } from './pages/AuditLog';
 import { Learning } from './pages/Learning';
 import { UserManagement } from './pages/UserManagement';
@@ -21,8 +22,10 @@ function App() {
     <AuthProvider>
       <HashRouter>
         <Routes>
-          {/* Landing Page at root */}
+          {/* Landing page is the public entry point. */}
           <Route path="/" element={<LandingPage />} />
+          {/* Welcome is shown after the user chooses Command Center. */}
+          <Route path="/welcome" element={<Welcome />} />
 
           {/* App Shell with Sidebar + Topbar */}
           <Route element={<AppLayout />}>
@@ -41,7 +44,7 @@ function App() {
           </Route>
 
           {/* 404 Fallback */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>
     </AuthProvider>

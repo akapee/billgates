@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import {
   Search,
   Bell,
-  ChevronDown,
   Menu,
   User,
   CheckCircle,
@@ -142,13 +141,11 @@ interface TopbarProps {
 
 export function Topbar({ onMobileMenuOpen }: TopbarProps) {
   const location = useLocation();
-  const { role, setMockRole } = useAuth();
+  const { role } = useAuth();
   const currentRoleConfig = roleConfig.find(r => r.value === role) || roleConfig[3];
   const RoleIcon = currentRoleConfig.icon;
   const [notifOpen, setNotifOpen] = useState(false);
-  const [roleOpen, setRoleOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
-  const roleRef = useRef<HTMLDivElement>(null);
 
   const breadcrumb = routeLabels[location.pathname] || { parent: 'Dashboard', current: 'Pusat Kendali' };
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -157,7 +154,6 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
-      if (roleRef.current && !roleRef.current.contains(e.target as Node)) setRoleOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -208,9 +204,8 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
         <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
       </div>
 
-      {/* Pemilih peran mode demo */}
-      <div className="relative flex-shrink-0" ref={roleRef}>
-        <button onClick={() => setRoleOpen(!roleOpen)} className={cn('flex items-center gap-2.5 pl-3 pr-2 py-1.5 border-l border-slate-200 transition-colors hover:bg-slate-50 rounded-r-lg', roleOpen && 'bg-slate-50')}>
+      {/* Peran aktif dipilih di halaman Welcome. */}
+      <div className="flex items-center gap-2.5 pl-3 pr-2 py-1.5 border-l border-slate-200 flex-shrink-0">
           <div className={cn('w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0', currentRoleConfig.bgColor, 'border')}>
             <RoleIcon size={15} className={currentRoleConfig.color} />
           </div>
@@ -218,9 +213,6 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
             <p className="text-sm font-semibold text-slate-900 leading-none">{currentRoleConfig.label}</p>
             <p className="text-[11px] text-slate-500 mt-0.5 leading-none">{currentRoleConfig.description}</p>
           </div>
-          <ChevronDown size={14} className={cn('hidden sm:block text-slate-400 transition-transform', roleOpen && 'rotate-180')} />
-        </button>
-        {roleOpen && <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden animate-fade-in"><div className="px-4 py-3 border-b border-slate-100"><h3 className="font-semibold text-slate-900 text-sm">Ganti Peran Akses</h3><p className="text-[11px] text-slate-500 mt-0.5">Mode demo sementara - pilih peran untuk melihat akses menu.</p></div><div className="p-2">{roleConfig.map((rc) => { const Icon = rc.icon; const isActive = role === rc.value; return <button key={rc.value} onClick={() => { setMockRole(rc.value); setRoleOpen(false); }} className={cn('w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all', isActive ? cn(rc.bgColor, 'border') : 'hover:bg-slate-50 border border-transparent')}><div className={cn('w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0', isActive ? 'bg-white shadow-sm' : 'bg-slate-100')}><Icon size={18} className={isActive ? rc.color : 'text-slate-400'} /></div><div className="flex-1 min-w-0"><p className={cn('text-sm font-semibold', isActive ? 'text-slate-900' : 'text-slate-700')}>{rc.label}</p><p className="text-[11px] text-slate-500">{rc.description}</p></div>{isActive && <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />}</button>; })}</div></div>}
       </div>
     </header>
   );

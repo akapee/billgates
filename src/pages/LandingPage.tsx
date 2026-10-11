@@ -414,7 +414,7 @@ export function LandingPage() {
 
             <button
               type="button"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/welcome')}
               className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm font-semibold rounded-full shadow-md shadow-bpjs-600/20 transition-colors shrink-0"
             >
               Masuk Demo
@@ -444,7 +444,7 @@ export function LandingPage() {
               ))}
               <button
                 type="button"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/welcome')}
                 className="mt-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-bpjs-600 text-white text-sm font-semibold rounded-xl"
               >
                 Masuk Demo
@@ -485,7 +485,7 @@ export function LandingPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-4">
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/welcome')}
                 className="w-full sm:w-auto px-6 py-3.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm lg:text-base font-bold rounded-xl shadow-lg shadow-bpjs-600/25 hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
               >
                 Coba Command Center (Demo)
@@ -764,7 +764,7 @@ export function LandingPage() {
                 Bukan sekadar mockup. Masuk memerlukan akun berperan; akun demo diberikan kepada juri/penguji.
               </p>
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/welcome')}
                 className="px-6 py-3.5 bg-white hover:bg-bpjs-50 text-bpjs-800 text-sm lg:text-base font-bold rounded-xl shadow-lg transition-all inline-flex items-center justify-center gap-2 group"
               >
                 Masuk Command Center (Demo)
