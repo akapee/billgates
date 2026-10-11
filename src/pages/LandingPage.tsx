@@ -5,14 +5,11 @@ import {
   AlertTriangle,
   ArrowRight,
   ArrowUp,
-  BarChart3,
   Brain,
   BrainCircuit,
-  CheckCircle2,
-  ChevronRight,
+  Check,
   Clock,
   Cpu,
-  Database,
   Download,
   FileSearch,
   FileText,
@@ -22,16 +19,14 @@ import {
   Mail,
   MapPin,
   Menu,
+  Minus,
   Phone,
   ScanSearch,
   Share2,
   ShieldCheck,
-  Target,
   UserCheck,
   UsersRound,
   X,
-  XCircle,
-  Zap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { evalEvidence } from '../data/evalEvidence';
@@ -42,13 +37,12 @@ import { learningEvidence } from '../data/learningEvidence';
 /* ------------------------------------------------------------------ */
 
 const NAV_LINKS = [
-  { label: 'Beranda', id: 'beranda' },
-  { label: 'Tentang', id: 'tentang' },
+  { label: 'Masalah', id: 'tentang' },
   { label: 'Alur', id: 'alur' },
   { label: 'Fitur', id: 'fitur' },
-  { label: 'Peran', id: 'peran' },
-  { label: 'Data', id: 'data' },
   { label: 'Validasi', id: 'validasi' },
+  { label: 'Data', id: 'data' },
+  { label: 'Peran', id: 'peran' },
   { label: 'Tim', id: 'tim' },
   { label: 'Kontak', id: 'kontak' },
 ];
@@ -118,13 +112,6 @@ const _k200 = learningEvidence.rows.find((r) => r.k === 200)!;
 const _big = evalEvidence.latency.find((l) => l.n === 100000);
 const _sec = _big ? (_big.v2 / 1000).toFixed(1).replace('.', ',') : '2,4';
 const LEARN_ROWS = learningEvidence.rows.filter((r) => [0, 50, 100, 200, 400].includes(r.k));
-
-const VALIDATION_STATS = [
-  { value: `${pct(_v1.precision)} → ${pct(_v2.precision)}`, label: 'Precision: algoritma lama (V1) → perbaikan (V2)' },
-  { value: `${pct(_v2.precision)} → ${pct(_k200.precision)}`, label: 'Precision setelah belajar dari 200 keputusan verifikator (simulasi)' },
-  { value: `${pct(_v1.workloadPct)} → ${pct(_v2.workloadPct)}`, label: 'Porsi klaim yang harus ditinjau verifikator (V1 → V2)' },
-  { value: `${_sec} dtk`, label: 'Memproses 100.000 klaim sekaligus (uji batch, 1 core)' },
-];
 
 // Skala masalah nasional (bukan hasil operasional BILL GATES)
 const ABOUT_STATS = [
@@ -267,61 +254,71 @@ const CONTACT_INFO = [
 /* Small building blocks                                               */
 /* ------------------------------------------------------------------ */
 
-function SectionHeader({
-  icon: Icon,
-  badge,
-  title,
-  desc,
-  light = false,
-}: {
-  icon: LucideIcon;
-  badge: string;
-  title: string;
-  desc?: ReactNode;
-  light?: boolean;
-}) {
+// Satu lebar kolom untuk seluruh halaman (sebelumnya max-w-7xl terasa melebar di layar besar)
+const WRAP = 'mx-auto w-full max-w-6xl px-5 sm:px-8';
+
+// Tipografi: Bricolage Grotesque (judul) + Public Sans (isi, dirancang untuk layanan publik).
+// Lebih rapi bila <link> font dipindah ke index.html; di sini disuntik agar file ini berdiri sendiri.
+const FONT_HREF =
+  'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Public+Sans:wght@400..700&display=swap';
+
+const BASE_CSS = `
+.bg-root{font-family:'Public Sans',ui-sans-serif,system-ui,sans-serif;--bg-focus:#047857}
+.bg-head{font-family:'Bricolage Grotesque','Public Sans',ui-sans-serif,system-ui,sans-serif;letter-spacing:-0.02em}
+.bg-num{font-variant-numeric:tabular-nums}
+.bg-root :is(a,button,input,textarea):focus-visible{outline:2px solid var(--bg-focus);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.bg-root *{transition:none!important;animation:none!important}}
+`;
+
+function Section({ id, tint = false, children }: { id: string; tint?: boolean; children: ReactNode }) {
   return (
-    <div className="text-center max-w-2xl mx-auto mb-12">
-      <div
-        className={
-          light
-            ? 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold mb-4'
-            : 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bpjs-50 border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-4'
-        }
-      >
-        <Icon size={14} />
-        {badge}
-      </div>
-      <h2 className={`text-3xl lg:text-4xl font-extrabold tracking-tight mb-3 text-balance ${light ? 'text-white' : 'text-slate-900'}`}>
-        {title}
-      </h2>
-      {desc && <p className={`text-balance leading-relaxed ${light ? 'text-bpjs-100' : 'text-slate-500'}`}>{desc}</p>}
+    <section id={id} className={`scroll-mt-14 ${tint ? 'border-y border-slate-200/70 bg-slate-50' : ''}`}>
+      <div className={`${WRAP} py-12 lg:py-20`}>{children}</div>
+    </section>
+  );
+}
+
+// Judul rata kiri, deskripsi di kolom kanan pada layar lebar: hemat tinggi dan terasa editorial.
+function SectionHeader({ title, desc }: { title: string; desc?: ReactNode }) {
+  return (
+    <div className="mb-8 grid items-end gap-3 lg:mb-12 lg:grid-cols-12 lg:gap-10">
+      <h2 className="bg-head text-balance text-2xl font-bold leading-[1.15] text-bpjs-950 sm:text-[2rem] lg:col-span-6">{title}</h2>
+      {desc && <p className="max-w-[62ch] text-[15px] leading-relaxed text-slate-600 lg:col-span-6">{desc}</p>}
     </div>
   );
 }
 
 function Note({ children, tone = 'amber' }: { children: ReactNode; tone?: 'amber' | 'green' }) {
-  const cls =
-    tone === 'amber'
-      ? 'bg-amber-50 border-amber-200 text-amber-800'
-      : 'bg-bpjs-50/70 border-bpjs-100 text-slate-600';
-  const icon =
-    tone === 'amber' ? (
-      <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
-    ) : (
-      <Cpu size={18} className="text-bpjs-600 shrink-0 mt-0.5" />
-    );
+  const amber = tone === 'amber';
+  const Icon = amber ? AlertTriangle : Cpu;
   return (
-    <div className={`flex items-start gap-3 border rounded-2xl p-5 ${cls}`}>
-      {icon}
+    <div className={`flex items-start gap-3 rounded-lg border-l-4 px-4 py-3.5 ${amber ? 'border-amber-400 bg-amber-50 text-amber-900' : 'border-bpjs-500 bg-bpjs-50 text-slate-700'}`}>
+      <Icon size={16} className={`mt-0.5 shrink-0 ${amber ? 'text-amber-600' : 'text-bpjs-600'}`} aria-hidden="true" />
       <p className="text-sm leading-relaxed">{children}</p>
     </div>
   );
 }
 
+// Deretan angka tanpa kotak: garis tipis sebagai pemisah, angka sebagai pusat perhatian.
+function Figures({ items, compact = false }: { items: { value: string; label: string }[]; compact?: boolean }) {
+  return (
+    <dl className={`grid grid-cols-2 gap-y-6 border-t border-slate-200 lg:grid-cols-4 ${compact ? 'pt-6' : 'pt-8'}`}>
+      {items.map((s, i) => (
+        <div
+          key={s.label}
+          className={`flex flex-col-reverse justify-end gap-1 pr-3 ${i % 2 === 1 ? 'border-l border-slate-200 pl-5' : ''} ${i > 0 ? 'lg:border-l lg:border-slate-200 lg:pl-6' : ''}`}
+        >
+          <dt className="text-sm leading-snug text-slate-600">{s.label}</dt>
+          <dd className={`bg-head bg-num font-bold ${s.value.length <= 8 ? 'whitespace-nowrap' : ''} ${compact ? 'text-2xl text-bpjs-950' : 'text-3xl text-bpjs-700 lg:text-[2rem]'}`}>{s.value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 function RiskBar() {
   return (
-    <div className="flex w-full h-4 overflow-hidden rounded-full bg-slate-100">
+    <div className="flex h-3 w-full overflow-hidden rounded-sm bg-slate-100">
       {ENGINE.risk.map((r) => (
         <div key={r.key} className={r.bar} style={{ width: `${(r.n / RISK_TOTAL) * 100}%` }} title={`${r.label}: ${fmt(r.n)} baris`} />
       ))}
@@ -329,26 +326,205 @@ function RiskBar() {
   );
 }
 
+// Hanya bulan tertinggi dan terendah yang diberi angka; sisanya lewat tooltip agar grafik tidak ramai.
 function MonthlyChart() {
   const max = Math.max(...MONTHLY.map((x) => x.n));
+  const min = Math.min(...MONTHLY.map((x) => x.n));
   return (
     <div>
-      <div className="flex items-end gap-1.5 h-40">
-        {MONTHLY.map((x) => (
-          <div key={x.m} className="flex-1 h-full flex flex-col justify-end items-center gap-1" title={`${x.m} 2023: ${x.n} nomor klaim`}>
-            <span className="text-[10px] font-semibold text-slate-500">{x.n}</span>
-            <div className="w-full rounded-t-md bg-gradient-to-t from-bpjs-600 to-bpjs-400" style={{ height: `${(x.n / max) * 78}%` }} />
-          </div>
-        ))}
+      <div className="flex h-56 items-end gap-1">
+        {MONTHLY.map((x) => {
+          const mark = x.n === max || x.n === min;
+          return (
+            <div key={x.m} className="flex h-full flex-1 flex-col items-center justify-end gap-1" title={`${x.m} 2023: ${x.n} nomor klaim`}>
+              <span className={`bg-num text-xs font-semibold text-slate-700 ${mark ? '' : 'invisible'}`}>{x.n}</span>
+              <div className={`w-full rounded-t-sm ${x.n === max ? 'bg-bpjs-700' : 'bg-bpjs-400'}`} style={{ height: `${(x.n / max) * 80}%` }} />
+            </div>
+          );
+        })}
       </div>
-      <div className="flex gap-1.5 mt-1.5">
+      <div className="mt-1.5 flex gap-1">
         {MONTHLY.map((x) => (
-          <span key={x.m} className="flex-1 text-center text-[10px] text-slate-400">
+          <span key={x.m} className="flex-1 text-center text-xs text-slate-500">
             {x.m}
           </span>
         ))}
       </div>
     </div>
+  );
+}
+
+// Dua batang berdampingan (sebelum/sesudah) jauh lebih cepat dibaca daripada "3,5% → 56,2%".
+function Compare({ label, a, b }: { label: string; a: { name: string; v: number }; b: { name: string; v: number } }) {
+  return (
+    <div>
+      <p className="mb-3 text-sm font-medium text-slate-800">{label}</p>
+      <div className="space-y-2">
+        {[a, b].map((r, i) => (
+          <div key={r.name} className="flex items-center gap-3">
+            <span className="w-36 shrink-0 text-xs text-slate-600">{r.name}</span>
+            <div className="h-3 flex-1 rounded-sm bg-slate-100">
+              <div className={`h-full rounded-sm ${i === 0 ? 'bg-slate-400' : 'bg-bpjs-600'}`} style={{ width: `${Math.max(r.v * 100, 1.5)}%` }} />
+            </div>
+            <span className="w-14 text-right text-sm font-semibold text-slate-900 bg-num">{pct(r.v)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Momen utama halaman: satu klaim yang ditandai, lengkap dengan alasan, ambang antrean, dan aturan "keputusan wajib beralasan".
+// Isinya ilustrasi (ID dimasker); tidak memuat ID atau baris klaim sebenarnya.
+function FlagDemo() {
+  const SCORE = 92;
+  const [shown, setShown] = useState(false);
+  const [decision, setDecision] = useState<null | 'Setujui' | 'Tolak'>(null);
+  const [reason, setReason] = useState('');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setShown(true), 300);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const canSave = reason.trim().length >= 5;
+  const reset = () => {
+    setDecision(null);
+    setReason('');
+    setSaved(false);
+  };
+
+  const reasons = [
+    { k: 'ID pasien', v: 'Mirip, beda 1 karakter' },
+    { k: 'Diagnosis', v: 'Sama (E11)' },
+    { k: 'Tindakan', v: 'Sama' },
+    { k: 'Jarak waktu', v: '3 hari, dalam jendela 21 hari' },
+  ];
+
+  return (
+    <figure className="m-0">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_24px_48px_-28px_rgba(2,44,34,0.45)]">
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+          <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <span className="h-2 w-2 rounded-full bg-red-500" aria-hidden="true" />
+            Kandidat tagihan ganda
+          </p>
+          <span className="text-xs text-slate-500">Ilustrasi</span>
+        </div>
+
+        <div className="px-5 pb-5 pt-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+            <div className="grid flex-1 grid-cols-2 gap-3 text-sm sm:order-first order-last">
+              <div className="rounded-lg bg-slate-50 px-3 py-2">
+                <p className="text-xs text-slate-500">Klaim A</p>
+                <p className="bg-num whitespace-nowrap font-semibold text-slate-800">PAT-•••17</p>
+              </div>
+              <div className="rounded-lg bg-slate-50 px-3 py-2">
+                <p className="text-xs text-slate-500">Klaim B</p>
+                <p className="bg-num whitespace-nowrap font-semibold text-slate-800">PAT-•••71</p>
+              </div>
+            </div>
+            <p className="bg-head bg-num shrink-0 self-end text-5xl font-extrabold leading-none text-red-600 sm:self-auto">
+              {SCORE}
+              <span className="ml-1 text-base font-semibold text-slate-400">/100</span>
+            </p>
+          </div>
+
+          <div className="relative mt-5 pb-6">
+            <div className="h-2 rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-red-500 transition-[width] duration-1000 ease-out"
+                style={{ width: shown ? `${SCORE}%` : '0%' }}
+                role="img"
+                aria-label={`Skor risiko ${SCORE} dari 100`}
+              />
+            </div>
+            {[
+              { at: 60, text: 'antrean', end: true },
+              { at: 80, text: 'kandidat', end: false },
+            ].map((t) => (
+              <span key={t.at} className="absolute top-0" style={{ left: `${t.at}%` }}>
+                <span className="block h-2 w-px bg-slate-400" aria-hidden="true" />
+                <span className={`mt-1 block whitespace-nowrap text-xs text-slate-500 ${t.end ? '-translate-x-full pr-1.5' : 'pl-1.5'}`}>
+                  {t.at} {t.text}
+                </span>
+              </span>
+            ))}
+          </div>
+
+          <ul className="divide-y divide-slate-100 border-y border-slate-100 text-sm">
+            {reasons.map((r) => (
+              <li key={r.k} className="flex items-center gap-3 py-2">
+                <Check size={15} className="shrink-0 text-red-500" aria-hidden="true" />
+                <span className="w-24 shrink-0 text-slate-500">{r.k}</span>
+                <span className="font-medium text-slate-800">{r.v}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-4 min-h-[5.5rem]">
+            {!decision && (
+              <>
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setDecision('Tolak')} className="flex-1 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50">
+                    Tolak
+                  </button>
+                  <button type="button" onClick={() => setDecision('Setujui')} className="flex-1 rounded-lg border border-bpjs-300 px-4 py-2.5 text-sm font-semibold text-bpjs-800 transition-colors hover:bg-bpjs-50">
+                    Setujui
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-slate-500">Coba sendiri: setiap keputusan wajib disertai alasan.</p>
+              </>
+            )}
+
+            {decision && !saved && (
+              <div>
+                <label htmlFor="demo-alasan" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Alasan {decision === 'Tolak' ? 'menolak' : 'menyetujui'} <span className="font-normal text-slate-500">(minimal 5 karakter)</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="demo-alasan"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400"
+                    placeholder="Mis. tanggal dan tindakan identik"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    disabled={!canSave}
+                    onClick={() => setSaved(true)}
+                    className="rounded-lg bg-bpjs-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-bpjs-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                  >
+                    Simpan
+                  </button>
+                </div>
+                <button type="button" onClick={reset} className="mt-2 text-xs font-medium text-slate-500 underline underline-offset-2 hover:text-slate-800">
+                  Batal
+                </button>
+              </div>
+            )}
+
+            {decision && saved && (
+              <div role="status" className="flex items-start justify-between gap-3 rounded-lg bg-bpjs-50 px-4 py-3 text-sm text-bpjs-800">
+                <p className="flex items-start gap-2">
+                  <Check size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+                  <span>
+                    Keputusan <strong>{decision}</strong> tersimpan bersama entri log audit.
+                  </span>
+                </p>
+                <button type="button" onClick={reset} className="shrink-0 text-xs font-semibold underline underline-offset-2">
+                  Ulangi
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <figcaption className="mt-3 text-xs text-slate-500">Ilustrasi alur penandaan dengan ID dimasker, bukan klaim sebenarnya.</figcaption>
+    </figure>
   );
 }
 
@@ -363,6 +539,16 @@ export function LandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [formNotice, setFormNotice] = useState(false);
   const [active, setActive] = useState('beranda');
+  const [roleIdx, setRoleIdx] = useState(0);
+
+  useEffect(() => {
+    if (document.getElementById('bg-fonts')) return;
+    const l = document.createElement('link');
+    l.id = 'bg-fonts';
+    l.rel = 'stylesheet';
+    l.href = FONT_HREF;
+    document.head.appendChild(l);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -386,523 +572,433 @@ export function LandingPage() {
   }, []);
 
   const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.getElementById(id)?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     setMenuOpen(false);
   };
 
-  const inputCls =
-    'w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-bpjs-500/30 focus:border-bpjs-400';
-
+  const inputCls = 'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-bpjs-500';
   const guideHref = `${base}buku_panduan_pengguna.pdf`;
+  const role = ROLES[roleIdx];
+  const roleModules = ACCESS_MATRIX.map((r) => ({ module: r.module, ok: r.access[roleIdx] }));
+  const roleCount = roleModules.filter((m) => m.ok).length;
 
   return (
-    <div className="min-h-screen w-full bg-white font-sans overflow-x-hidden">
+    <div className="bg-root min-h-screen w-full overflow-x-hidden bg-white text-slate-700 antialiased">
+      <style>{BASE_CSS}</style>
+
       {/* Navbar */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-3.5">
-          <div className="flex items-center justify-between gap-4">
-            <button type="button" onClick={() => scrollToSection('beranda')} className="flex items-center gap-3 shrink-0">
-              <img src={`${base}images/logo.png`} alt="Bill Gates Logo" className="w-10 h-10 rounded-xl object-contain" />
-              <span className="text-slate-900 font-black text-lg tracking-wide leading-none">BILL GATES</span>
-            </button>
+      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 backdrop-blur">
+        <div className={`${WRAP} flex h-14 items-center justify-between gap-6`}>
+          <button type="button" onClick={() => scrollToSection('beranda')} className="flex shrink-0 items-center gap-2.5">
+            <img src={`${base}images/logo.png`} alt="" className="h-8 w-8 rounded-lg object-contain" />
+            <span className="bg-head text-lg font-extrabold leading-none text-bpjs-950">BILL GATES</span>
+          </button>
 
-            <nav className="hidden xl:flex items-center gap-0.5 bg-slate-100/80 p-1 rounded-full border border-slate-200">
-              {NAV_LINKS.map((link) => (
-                <button
-                  key={link.id}
-                  type="button"
-                  onClick={() => scrollToSection(link.id)}
-                  className={
-                    active === link.id
-                      ? 'px-3.5 py-1.5 text-sm font-semibold text-bpjs-700 bg-white rounded-full shadow-sm whitespace-nowrap'
-                      : 'px-3.5 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-full transition-colors whitespace-nowrap'
-                  }
-                >
-                  {link.label}
-                </button>
-              ))}
-            </nav>
-
-            <button
-              type="button"
-              onClick={() => navigate('/welcome')}
-              className="hidden xl:flex items-center gap-2 px-5 py-2.5 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm font-semibold rounded-full shadow-md shadow-bpjs-600/20 transition-colors shrink-0"
-            >
-              Masuk Demo
-              <ArrowRight size={16} />
-            </button>
-
-            <button
-              onClick={() => setMenuOpen((v) => !v)}
-              className="xl:hidden w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 text-slate-700"
-              aria-label="Buka menu"
-            >
-              {menuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
-
-          {menuOpen && (
-            <div className="xl:hidden mt-3 flex flex-col gap-1 bg-slate-50 rounded-2xl border border-slate-200 p-2">
-              {NAV_LINKS.map((link) => (
-                <button
-                  key={link.id}
-                  type="button"
-                  onClick={() => scrollToSection(link.id)}
-                  className="px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-white hover:text-bpjs-700 rounded-xl transition-colors text-left"
-                >
-                  {link.label}
-                </button>
-              ))}
+          <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigasi utama">
+            {NAV_LINKS.map((link) => (
               <button
+                key={link.id}
                 type="button"
-                onClick={() => navigate('/welcome')}
-                className="mt-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-bpjs-600 text-white text-sm font-semibold rounded-xl"
+                onClick={() => scrollToSection(link.id)}
+                aria-current={active === link.id ? 'true' : undefined}
+                className={`relative whitespace-nowrap rounded-md px-3 py-2 text-sm transition-colors ${
+                  active === link.id
+                    ? 'font-semibold text-bpjs-700 after:absolute after:inset-x-3 after:-bottom-[9px] after:h-0.5 after:bg-bpjs-600'
+                    : 'font-medium text-slate-600 hover:text-slate-900'
+                }`}
               >
+                {link.label}
+              </button>
+            ))}
+          </nav>
+
+          <button
+            type="button"
+            onClick={() => navigate('/welcome')}
+            className="hidden shrink-0 items-center gap-2 rounded-lg bg-bpjs-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-bpjs-800 lg:inline-flex"
+          >
+            Masuk Demo
+            <ArrowRight size={15} aria-hidden="true" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-700 lg:hidden"
+            aria-label={menuOpen ? 'Tutup menu' : 'Buka menu'}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+
+        {menuOpen && (
+          <div className="border-t border-slate-200 bg-white lg:hidden">
+            <div className={`${WRAP} flex flex-col py-2`}>
+              {NAV_LINKS.map((link) => (
+                <button key={link.id} type="button" onClick={() => scrollToSection(link.id)} className="border-b border-slate-100 py-3 text-left text-[15px] font-medium text-slate-700 last:border-0">
+                  {link.label}
+                </button>
+              ))}
+              <button type="button" onClick={() => navigate('/welcome')} className="my-2 inline-flex items-center justify-center gap-2 rounded-lg bg-bpjs-700 px-4 py-3 text-sm font-semibold text-white">
                 Masuk Demo
-                <ArrowRight size={16} />
+                <ArrowRight size={15} aria-hidden="true" />
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
-      {/* Hero */}
-      <main id="beranda" className="scroll-mt-24 overflow-hidden bg-gradient-to-b from-bpjs-50/70 via-white to-white">
-        <div className="relative">
-          <div
-            className="absolute inset-0 opacity-40 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]"
-            aria-hidden="true"
-          />
-
-          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-12 lg:pt-20 pb-6 lg:pb-24">
-            <div className="text-center lg:text-left lg:max-w-[48%]">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-bpjs-200 text-bpjs-700 text-xs font-semibold mb-6 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-bpjs-500 animate-pulse" />
-                Analitik AI Lokal · Deteksi Klaim Pra-Bayar
-              </div>
-
-              <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-tight leading-[1.02] mb-3">
-                <span className="text-slate-900">BILL </span>
-                <span className="text-bpjs-600">GATES</span>
-              </h1>
-              <p className="text-base sm:text-lg font-semibold text-slate-500 mb-6 text-balance">
-                (BILLing Ganda &amp; Anomali TerEliminasi Sistem)
-              </p>
-
-              <p className="text-xl sm:text-2xl font-bold text-slate-800 mb-4 text-balance">
+      <main>
+        {/* Hero */}
+        <div id="beranda" className="scroll-mt-14 border-b border-bpjs-100 bg-bpjs-50/60">
+          <div className={`${WRAP} grid items-center gap-10 pb-10 pt-10 lg:grid-cols-12 lg:gap-14 lg:pb-14 lg:pt-16`}>
+            <div className="lg:col-span-6">
+              <h1 className="bg-head text-balance text-4xl font-extrabold leading-[1.05] text-bpjs-950 sm:text-5xl lg:text-[3.25rem]">
                 Tangkap klaim ganda JKN sebelum dibayar.
-              </p>
-              <p className="text-sm lg:text-base text-slate-500 mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0 text-balance">
-                Deteksi tagihan ganda dan anomali dengan skor yang bisa dijelaskan, radar risiko faskes lewat analitik AI lokal tanpa API eksternal, dan jejak audit di setiap keputusan. Didemokan pada {fmt(SAMPLE.rows)} klaim sampel BPJS Kesehatan.
+              </h1>
+              <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-slate-600">
+                <strong className="font-semibold text-slate-800">BILL GATES</strong> (BILLing Ganda &amp; Anomali TerEliminasi Sistem) mendeteksi tagihan ganda dan anomali dengan skor yang bisa dijelaskan, memetakan risiko faskes lewat analitik AI lokal tanpa API eksternal, dan mencatat jejak audit di setiap keputusan. Didemokan pada {fmt(SAMPLE.rows)} klaim sampel BPJS Kesehatan.
               </p>
 
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-4">
-                <button
-                  onClick={() => navigate('/welcome')}
-                  className="px-5 py-3 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-bpjs-600/25 hover:shadow-xl transition-all inline-flex items-center gap-2 whitespace-nowrap group"
-                >
-                  Coba Command Center (Demo)
-                  <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </button>
+              <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <button
                   type="button"
-                  onClick={() => scrollToSection('data')}
-                  className="px-5 py-3 bg-white text-slate-700 border border-slate-200 hover:border-bpjs-400 hover:text-bpjs-700 text-sm font-semibold rounded-xl transition-all whitespace-nowrap"
+                  onClick={() => navigate('/welcome')}
+                  className="inline-flex items-center gap-2 rounded-lg bg-bpjs-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-bpjs-800"
                 >
-                  Lihat Data Sampel
+                  Coba Command Center (Demo)
+                  <ArrowRight size={16} aria-hidden="true" />
+                </button>
+                <button type="button" onClick={() => scrollToSection('data')} className="text-sm font-semibold text-bpjs-800 underline decoration-bpjs-300 underline-offset-4 hover:decoration-bpjs-700">
+                  Lihat data sampel
                 </button>
               </div>
-              <p className="text-xs text-slate-400 text-balance">
-                *Mode Demo: pilih peran di halaman awal, tanpa login. Angka akurasi diukur terpisah pada data sintetis.
-              </p>
+              <p className="mt-4 max-w-[52ch] text-xs leading-relaxed text-slate-500">Mode demo: pilih peran di halaman awal, tanpa login. Angka akurasi diukur terpisah pada data sintetis.</p>
+            </div>
+
+            <div className="lg:col-span-6">
+              <FlagDemo />
             </div>
           </div>
 
-          {/* Ilustrasi menyatu dengan latar (tepi kiri, atas, dan bawah sudah memudar di file gambar) */}
-          <img
-            src={`${base}images/header.png`}
-            alt="Ilustrasi petugas verifikasi BPJS didampingi asisten analitik yang menunjukkan analisis klaim"
-            width={960}
-            height={833}
-            className="relative z-0 block w-full h-auto lg:absolute lg:right-0 lg:top-0 lg:h-full lg:w-auto lg:max-w-[58%] lg:object-contain lg:object-right"
-          />
-        </div>
-
-        {/* Ringkasan */}
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pb-12">
-          <div className="grid grid-cols-2 lg:grid-cols-4 rounded-2xl border border-slate-200 bg-white shadow-sm divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
-            {[
-              { value: fmt(SAMPLE.rows), label: 'klaim sampel BPJS Kesehatan' },
-              { value: fmt(SAMPLE.units), label: 'unit faskes dianalisis' },
-              { value: '4 peran', label: 'akses sesuai kewenangan' },
-              { value: '12 modul', label: 'dari deteksi sampai audit' },
-            ].map((s) => (
-              <div key={s.label} className="px-5 py-5 text-center">
-                <p className="text-xl lg:text-2xl font-extrabold text-slate-900">{s.value}</p>
-                <p className="text-xs text-slate-500 mt-1">{s.label}</p>
-              </div>
-            ))}
+          <div className={`${WRAP} pb-10`}>
+            <Figures
+              compact
+              items={[
+                { value: fmt(SAMPLE.rows), label: 'klaim sampel BPJS Kesehatan' },
+                { value: fmt(SAMPLE.units), label: 'unit faskes dianalisis' },
+                { value: '4 peran', label: 'akses sesuai kewenangan' },
+                { value: '12 modul', label: 'dari deteksi sampai audit' },
+              ]}
+            />
           </div>
         </div>
-      </main>
 
-      {/* Tentang */}
-      <section id="tentang" className="scroll-mt-24 max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
-        <SectionHeader
-          icon={Target}
-          badge="Tentang BILL GATES"
-          title="Melindungi Dana JKN Sebelum Klaim Dibayarkan"
-          desc="BILL GATES melengkapi proses verifikasi yang ada dengan penapisan duplikat dan analitik risiko yang bisa dijelaskan, sebelum klaim disetujui. Mencegah lebih murah daripada menagih kembali."
-        />
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {ABOUT_STATS.map((stat) => (
-            <div key={stat.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-6">
-              <p className="text-3xl font-extrabold text-bpjs-600 mb-1">{stat.value}</p>
-              <p className="text-sm font-medium text-slate-500 leading-snug">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-slate-400 mt-3">
-          Sumber: KPK (2015, 2024), Kompas.id (2025) &mdash; angka skala masalah nasional, bukan hasil operasional BILL GATES.
-        </p>
-
-        <div className="grid lg:grid-cols-2 gap-6 mt-10">
-          <div className="bg-red-50/60 border border-red-100 rounded-2xl p-6 lg:p-8">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0">
-                <XCircle size={20} className="text-red-500" />
-              </div>
-              <h3 className="text-base font-bold text-slate-800">Tantangan yang Dijawab</h3>
-            </div>
-            <ul className="space-y-3">
-              {AUDIT_ISSUES.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-slate-600">
-                  <XCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-bpjs-50/60 border border-bpjs-100 rounded-2xl p-6 lg:p-8">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0">
-                <CheckCircle2 size={20} className="text-bpjs-600" />
-              </div>
-              <h3 className="text-base font-bold text-slate-800">BILL GATES: Penapisan Pra-Bayar yang Bisa Dijelaskan</h3>
-            </div>
-            <ul className="space-y-3">
-              {BILLGATES_ADVANTAGES.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-slate-600">
-                  <CheckCircle2 size={16} className="text-bpjs-500 shrink-0 mt-0.5" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Alur Kerja */}
-      <section id="alur" className="scroll-mt-24 bg-slate-50/70 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+        {/* Tentang */}
+        <Section id="tentang">
           <SectionHeader
-            icon={ScanSearch}
-            badge="Alur Kerja"
-            title="Dari Klaim Masuk Sampai Keputusan Berjejak"
-            desc="Lima langkah yang konsisten antar peran: klaim ditandai sebelum disetujui, dan setiap keputusan dapat ditelusuri."
+            title="Melindungi dana JKN sebelum klaim dibayarkan"
+            desc="BILL GATES melengkapi proses verifikasi yang ada dengan penapisan duplikat dan analitik risiko yang bisa dijelaskan, sebelum klaim disetujui. Mencegah lebih murah daripada menagih kembali."
           />
+          <Figures items={ABOUT_STATS} />
+          <p className="mt-4 text-xs text-slate-500">Sumber: KPK (2015, 2024), Kompas.id (2025). Angka skala masalah nasional, bukan hasil operasional BILL GATES.</p>
 
-          <div className="relative grid gap-5 lg:grid-cols-5">
-            <div className="hidden lg:block absolute top-8 left-[10%] right-[10%] h-0.5 bg-slate-200" aria-hidden="true" />
-            {WORKFLOW_STEPS.map(({ icon: Icon, title, desc }, i) => (
-              <div key={title} className="relative bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                <div className="relative z-10 w-14 h-14 rounded-2xl bg-bpjs-600 flex items-center justify-center shadow-lg shadow-bpjs-600/25 mb-4">
-                  <Icon size={24} className="text-white" />
-                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border-2 border-bpjs-600 text-bpjs-700 text-xs font-extrabold flex items-center justify-center">
-                    {i + 1}
-                  </span>
-                </div>
-                <h3 className="text-sm font-bold text-slate-800 mb-1.5">{title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-bpjs-50/60 border border-bpjs-100 rounded-2xl p-5 mt-8">
-            <div className="flex items-start gap-3 flex-1">
-              <ShieldCheck size={18} className="text-bpjs-600 shrink-0 mt-0.5" />
-              <p className="text-sm text-slate-600 leading-relaxed">
-                <span className="font-bold text-slate-800">Sinyal bukan vonis:</span> deteksi duplikat dan anomali adalah bahan penelaahan, bukan keputusan penolakan otomatis. Keputusan akhir tetap di tangan petugas.
-              </p>
+          <div className="mt-12 grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid-cols-2">
+            <div className="p-6 lg:p-8">
+              <h3 className="bg-head mb-4 text-lg font-semibold text-slate-900">Tantangan yang dijawab</h3>
+              <ul className="space-y-3">
+                {AUDIT_ISSUES.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-[15px] leading-relaxed text-slate-600">
+                    <X size={16} className="mt-1 shrink-0 text-red-500" aria-hidden="true" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
+            <div className="border-t border-slate-200 bg-bpjs-50/70 p-6 lg:border-l lg:border-t-0 lg:p-8">
+              <h3 className="bg-head mb-4 text-lg font-semibold text-slate-900">Penapisan pra-bayar yang bisa dijelaskan</h3>
+              <ul className="space-y-3">
+                {BILLGATES_ADVANTAGES.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-[15px] leading-relaxed text-slate-600">
+                    <Check size={16} className="mt-1 shrink-0 text-bpjs-600" aria-hidden="true" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Section>
+
+        {/* Alur Kerja */}
+        <Section id="alur" tint>
+          <SectionHeader title="Dari klaim masuk sampai keputusan berjejak" desc="Lima langkah yang konsisten antar peran: klaim ditandai sebelum disetujui, dan setiap keputusan dapat ditelusuri." />
+
+          <ol className="grid lg:grid-cols-5">
+            {WORKFLOW_STEPS.map(({ icon: Icon, title, desc }, i) => (
+              <li key={title} className="flex gap-4 lg:block">
+                <div className="flex flex-col items-center lg:mb-4 lg:flex-row lg:gap-3">
+                  <span className="bg-num grid h-9 w-9 shrink-0 place-items-center rounded-full bg-bpjs-950 text-sm font-semibold text-white">{i + 1}</span>
+                  {i < WORKFLOW_STEPS.length - 1 && <span aria-hidden="true" className="mt-2 w-px flex-1 bg-slate-300 lg:mt-0 lg:h-px lg:w-auto" />}
+                </div>
+                <div className="pb-8 lg:pb-0 lg:pr-5">
+                  <h3 className="bg-head mb-1.5 flex items-center gap-2 text-base font-semibold text-bpjs-950">
+                    <Icon size={16} className="shrink-0 text-bpjs-600" aria-hidden="true" />
+                    {title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-slate-600">{desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-10 flex flex-col gap-4 rounded-xl border border-bpjs-100 bg-bpjs-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm leading-relaxed text-slate-700">
+              <strong className="font-semibold text-slate-900">Sinyal bukan vonis.</strong> Deteksi duplikat dan anomali adalah bahan penelaahan, bukan keputusan penolakan otomatis. Keputusan akhir tetap di tangan petugas.
+            </p>
             <a
               href={guideHref}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-bpjs-200 text-bpjs-700 text-sm font-semibold rounded-xl hover:bg-bpjs-50 transition-colors shrink-0"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-bpjs-200 bg-white px-4 py-2.5 text-sm font-semibold text-bpjs-800 transition-colors hover:bg-bpjs-50"
             >
-              <Download size={16} />
+              <Download size={16} aria-hidden="true" />
               Unduh panduan (PDF)
             </a>
           </div>
-        </div>
-      </section>
+        </Section>
 
-      {/* Fitur */}
-      <section id="fitur" className="scroll-mt-24 max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
-        <SectionHeader
-          icon={Zap}
-          badge="Fitur Unggulan"
-          title="Sembilan Kemampuan, Satu Alur Kerja"
-          desc="Semua fitur di bawah sudah berjalan di prototype. Label di kartu menunjukkan peran utama pengguna fitur tersebut."
-        />
+        {/* Fitur */}
+        <Section id="fitur">
+          <SectionHeader title="Sembilan kemampuan, satu alur kerja" desc="Semua fitur di bawah sudah berjalan di prototype. Label di samping judul menunjukkan peran utama pengguna fitur tersebut." />
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURES.map(({ icon: Icon, title, desc, tag }) => (
-            <div key={title} className="bg-white rounded-2xl border border-slate-100 p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-bpjs-50 flex items-center justify-center">
-                  <Icon size={22} className="text-bpjs-600" />
+          <ul className="grid gap-x-14 border-t border-slate-200 md:grid-cols-2">
+            {FEATURES.map(({ icon: Icon, title, desc, tag }) => (
+              <li key={title} className="flex gap-4 border-b border-slate-200 py-6">
+                <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-bpjs-50 text-bpjs-700">
+                  <Icon size={18} aria-hidden="true" />
+                </span>
+                <div>
+                  <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                    <h3 className="bg-head text-base font-semibold text-bpjs-950">{title}</h3>
+                    <span className="text-xs font-medium text-bpjs-700">{tag}</span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-slate-600">{desc}</p>
                 </div>
-                <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 rounded-full px-2.5 py-1">{tag}</span>
-              </div>
-              <h3 className="text-base font-bold text-slate-800 mb-2">{title}</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6">
-          <Note tone="green">
-            <span className="font-bold text-slate-800">Rencana integrasi:</span> BILL GATES dirancang untuk terhubung ke sistem klaim BPJS Kesehatan yang sudah berjalan (mis. Vclaim) lewat API, dijadwalkan pada Fase 3 roadmap pengembangan — bukan menggantikan sistem yang ada, melainkan menjadi lapisan penapisan tambahan sebelum klaim disetujui.
-          </Note>
-        </div>
-      </section>
-
-      {/* Peran */}
-      <section id="peran" className="scroll-mt-24 bg-slate-50/70 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
-          <SectionHeader
-            icon={UsersRound}
-            badge="Akses Berbasis Peran"
-            title="Setiap Peran Melihat yang Menjadi Tugasnya"
-            desc="Menu di aplikasi mengikuti peran aktif. Hak akses di bawah mengikuti pengaturan menu pada prototype."
-          />
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            {ROLES.map(({ icon: Icon, name, summary, accent }) => (
-              <div key={name} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${accent}`}>
-                  <Icon size={20} />
-                </div>
-                <h3 className="text-base font-bold text-slate-800 mb-1.5">{name}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{summary}</p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
-          <div className="rounded-2xl border border-slate-100 bg-white shadow-sm overflow-x-auto">
-            <table className="w-full text-sm min-w-[560px]">
-              <thead>
-                <tr className="border-b border-slate-100 text-left">
-                  <th className="px-5 py-3.5 font-semibold text-slate-500">Modul</th>
-                  {ROLES.map((r) => (
-                    <th key={r.name} className="px-3 py-3.5 font-semibold text-slate-700 text-center whitespace-nowrap">
-                      {r.name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {ACCESS_MATRIX.map((row) => (
-                  <tr key={row.module} className="border-b border-slate-50 last:border-0">
-                    <td className="px-5 py-3 text-slate-700">{row.module}</td>
-                    {row.access.map((ok, i) => (
-                      <td key={ROLES[i].name} className="px-3 py-3 text-center">
-                        {ok ? <CheckCircle2 size={18} className="text-bpjs-600 inline-block" aria-label="Dapat diakses" /> : <span className="text-slate-300" aria-label="Tidak dapat diakses">–</span>}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-6">
+          <div className="mt-8">
             <Note tone="green">
-              <span className="font-bold text-slate-800">Tentang akses di mode demo:</span> peran dipilih di halaman awal tanpa login, agar juri dapat mencoba setiap sudut pandang. Autentikasi akun (Firebase Authentication) dengan sesi yang habis otomatis disiapkan untuk fase pilot, dan pembuatan akun hanya lewat Firebase Console atau Admin SDK, tidak dari browser.
+              <strong className="font-semibold text-slate-900">Rencana integrasi:</strong> BILL GATES dirancang untuk terhubung ke sistem klaim BPJS Kesehatan yang sudah berjalan (mis. Vclaim) lewat API, dijadwalkan pada Fase 3 roadmap pengembangan. Bukan menggantikan sistem yang ada, melainkan menjadi lapisan penapisan tambahan sebelum klaim disetujui.
             </Note>
           </div>
-        </div>
-      </section>
+        </Section>
 
-      {/* Prototype CTA */}
-      <section id="prototype" className="scroll-mt-24 px-6 lg:px-8 py-16 lg:py-24">
-        <div className="relative max-w-7xl mx-auto overflow-hidden rounded-3xl bg-gradient-to-br from-bpjs-700 via-bpjs-800 to-bpjs-950 p-8 lg:p-14">
-          <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-bpjs-400/20 blur-3xl" aria-hidden="true" />
-          <div className="relative grid lg:grid-cols-2 gap-10 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold mb-4">
-                <LayoutDashboard size={14} />
-                Prototype Fungsional
+        {/* Validasi */}
+        <Section id="validasi" tint>
+          <SectionHeader
+            title="Diuji, bukan hanya diklaim"
+            desc={`Diuji pada ${fmt(evalEvidence.testClaims)} klaim sintetis berkunci jawaban (100 duplikat disisipkan, ditambah klaim sah yang mirip seperti kontrol kronis dan sesi berulang). Ambang dipilih pada data tuning terpisah, lalu diuji pada data baru.`}
+          />
+
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
+            <div className="space-y-9 lg:col-span-7">
+              <Compare label="Precision: seberapa sering tanda duplikat memang benar" a={{ name: 'Algoritma lama (V1)', v: _v1.precision }} b={{ name: 'Perbaikan (V2)', v: _v2.precision }} />
+              <Compare label="Precision setelah belajar dari 200 keputusan verifikator (simulasi)" a={{ name: 'Perbaikan (V2)', v: _v2.precision }} b={{ name: 'Setelah 200 keputusan', v: _k200.precision }} />
+              <Compare label="Porsi klaim yang harus ditinjau verifikator (makin kecil makin ringan)" a={{ name: 'Algoritma lama (V1)', v: _v1.workloadPct }} b={{ name: 'Perbaikan (V2)', v: _v2.workloadPct }} />
+            </div>
+
+            <div className="lg:col-span-5">
+              <div className="rounded-xl border border-slate-200 bg-white p-6">
+                <h3 className="bg-head text-base font-semibold text-slate-900">Precision seiring jumlah keputusan</h3>
+                <p className="mt-1 text-xs text-slate-500">Simulasi, verifikator simulasi keliru 5%.</p>
+                <div className="mt-5 flex h-36 items-end gap-3">
+                  {LEARN_ROWS.map((r) => (
+                    <div key={r.k} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
+                      <span className="bg-num text-xs font-semibold text-slate-700">{pct(r.precision, 0)}</span>
+                      <div className={`w-full rounded-t-sm ${r.k === 200 ? 'bg-bpjs-700' : 'bg-bpjs-300'}`} style={{ height: `${r.precision * 72}%` }} />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-1.5 flex gap-3">
+                  {LEARN_ROWS.map((r) => (
+                    <span key={r.k} className="bg-num flex-1 text-center text-xs text-slate-500">
+                      {r.k === 0 ? 'Awal' : r.k}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs text-slate-500">Sumbu bawah: jumlah keputusan verifikator yang dipelajari model.</p>
               </div>
-              <h2 className="text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-4 text-balance">
-                Coba Command Center dengan {fmt(SAMPLE.rows)} klaim sampel
-              </h2>
-              <p className="text-bpjs-100 leading-relaxed mb-8 text-balance">
-                Bukan sekadar mockup. Pilih peran, lalu jelajahi deteksi, radar risiko, verifikasi, dan log audit pada data sampel BPJS Kesehatan.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
+
+              <div className="mt-4 flex items-baseline gap-3 rounded-xl border border-slate-200 bg-white px-6 py-5">
+                <p className="bg-head bg-num shrink-0 whitespace-nowrap text-3xl font-bold text-bpjs-700">{_sec} dtk</p>
+                <p className="text-sm leading-snug text-slate-600">memproses 100.000 klaim sekaligus (uji batch, 1 core)</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <Note>
+              <strong className="font-semibold">Keterbatasan:</strong> semua angka di bagian ini berasal dari data sintetis (terpisah dari klaim sampel BPJS pada demo) dan verifikator simulasi (keliru 5%), bukan data atau verifikator BPJS sungguhan. Pada 200 keputusan, precision naik tetapi recall turun ke ±84%, sehingga sebagian duplikat asli ikut tersaring. Deteksi anomali biaya (upcoding) belum divalidasi. Parameter akan dikalibrasi dengan Data Sampel BPJS dan diuji pada fase pilot.
+            </Note>
+          </div>
+        </Section>
+
+        {/* Prototype CTA */}
+        <section id="prototype" className="scroll-mt-14 bg-bpjs-950 text-white">
+          <div className={`${WRAP} grid items-center gap-8 py-12 lg:grid-cols-12 lg:gap-14 lg:py-20`}>
+            <div className="lg:col-span-6">
+              <h2 className="bg-head text-balance text-2xl font-bold leading-[1.15] sm:text-[2rem]">Coba Command Center dengan {fmt(SAMPLE.rows)} klaim sampel</h2>
+              <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-bpjs-100">Bukan sekadar mockup. Pilih peran, lalu jelajahi deteksi, radar risiko, verifikasi, dan log audit pada data sampel BPJS Kesehatan.</p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <button
+                  type="button"
                   onClick={() => navigate('/welcome')}
-                  className="px-6 py-3.5 bg-white hover:bg-bpjs-50 text-bpjs-800 text-sm lg:text-base font-bold rounded-xl shadow-lg transition-all inline-flex items-center justify-center gap-2 group"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-bpjs-950 transition-colors hover:bg-bpjs-50"
                 >
                   Masuk Command Center (Demo)
-                  <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={16} aria-hidden="true" />
                 </button>
                 <a
                   href={guideHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-6 py-3.5 bg-white/10 hover:bg-white/15 border border-white/25 text-white text-sm lg:text-base font-semibold rounded-xl transition-all inline-flex items-center justify-center gap-2"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
                 >
-                  <Download size={18} />
+                  <Download size={16} aria-hidden="true" />
                   Panduan (PDF)
                 </a>
               </div>
-              <p className="text-xs text-bpjs-200 mt-3">*Mode Demo dengan data klaim sampel. Pilih peran tanpa login.</p>
+              <p className="mt-4 text-xs text-bpjs-200">Mode demo dengan data klaim sampel. Pilih peran tanpa login.</p>
             </div>
 
-            <ul className="flex flex-wrap gap-2.5">
-              {PROTOTYPE_MODULES.map((item) => (
-                <li key={item} className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-3.5 py-2 text-sm text-white">
-                  <CheckCircle2 size={15} className="text-bpjs-300 shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
+            {/* Daftar modul dibuat menyerupai menu samping aplikasi */}
+            <div className="lg:col-span-6">
+              <div className="rounded-xl border border-white/15 bg-white/5 p-2">
+                <p className="px-3 pb-2 pt-2 text-xs text-bpjs-200">{PROTOTYPE_MODULES.length} modul di Command Center</p>
+                <ul className="grid grid-cols-2 gap-1">
+                  {PROTOTYPE_MODULES.map((item, i) => (
+                    <li key={item} className={`flex items-center gap-2 rounded-md px-2.5 py-2 text-[13px] leading-snug sm:gap-2.5 sm:px-3 sm:text-sm ${i === 0 ? 'bg-white/10 font-semibold text-white' : 'text-bpjs-100'}`}>
+                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${i === 0 ? 'bg-bpjs-300' : 'bg-white/30'}`} aria-hidden="true" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Data Sampel */}
-      <section id="data" className="scroll-mt-24 bg-slate-50/70 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+        {/* Data Sampel */}
+        <Section id="data">
           <SectionHeader
-            icon={Database}
-            badge="Data Sampel BPJS"
-            title={`${fmt(SAMPLE.rows)} Klaim Sampel yang Dipakai di Demo`}
+            title={`${fmt(SAMPLE.rows)} klaim sampel yang dipakai di demo`}
             desc="Command Center memuat klaim dari Data Sampel BPJS Kesehatan (FKRTL dan Non-Kapitasi, nilai klaim di atas Rp0) dengan ID pasien dipseudonimkan. Di bawah ini gambaran isinya dan apa yang ditemukan mesin deteksi."
           />
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {[
+          <Figures
+            items={[
               { value: fmt(SAMPLE.uniqueClaims), label: 'nomor klaim unik' },
               { value: fmt(SAMPLE.patients), label: 'pasien unik (ID dipseudonimkan)' },
               { value: fmt(SAMPLE.units), label: 'unit faskes (jenis × kabupaten/kota)' },
               { value: SAMPLE.totalValue, label: 'total nilai klaim pada sampel' },
-            ].map((s) => (
-              <div key={s.label} className="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
-                <p className="text-2xl font-extrabold text-slate-900">{s.value}</p>
-                <p className="text-xs text-slate-500 mt-1">{s.label}</p>
-              </div>
-            ))}
-          </div>
+            ]}
+          />
 
-          <div className="grid lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3 rounded-2xl border border-slate-100 bg-white shadow-sm p-6 lg:p-8">
-              <div className="flex items-baseline justify-between mb-5">
-                <h3 className="text-base font-bold text-slate-800">Sebaran risiko hasil mesin deteksi</h3>
-                <span className="text-xs text-slate-400">{fmt(RISK_TOTAL)} baris klaim</span>
+          <div className="mt-10 grid gap-6 lg:grid-cols-12">
+            <div className="rounded-xl border border-slate-200 bg-white p-6 lg:col-span-7">
+              <div className="mb-4 flex items-baseline justify-between gap-4">
+                <h3 className="bg-head text-base font-semibold text-slate-900">Sebaran risiko hasil mesin deteksi</h3>
+                <span className="bg-num text-xs text-slate-500">{fmt(RISK_TOTAL)} baris klaim</span>
               </div>
               <RiskBar />
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+              <ul className="mt-4 divide-y divide-slate-100">
                 {ENGINE.risk.map((r) => (
-                  <div key={r.key} className="rounded-xl bg-slate-50 p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`w-2.5 h-2.5 rounded-full ${r.dot}`} />
-                      <span className="text-xs font-semibold text-slate-500">{r.label}</span>
-                    </div>
-                    <p className={`text-xl font-extrabold ${r.text}`}>{fmt(r.n)}</p>
-                    <p className="text-[11px] text-slate-400">{pct(r.n / RISK_TOTAL)} dari sampel</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 pt-5 border-t border-slate-100">
-                <p className="text-xs font-semibold text-slate-500 mb-3">Sinyal yang ditemukan</p>
-                <ul className="space-y-2">
-                  {ENGINE.signals.map((s) => (
-                    <li key={s.label} className="flex items-center justify-between gap-4 text-sm">
-                      <span className="text-slate-600">{s.label}</span>
-                      <span className="font-bold text-slate-800">{fmt(s.n)}</span>
-                    </li>
-                  ))}
-                  <li className="flex items-center justify-between gap-4 text-sm">
-                    <span className="text-slate-600">Unit faskes jadi prioritas investigasi (skor ≥ 60)</span>
-                    <span className="font-bold text-slate-800">
-                      {ENGINE.priorityUnits} dari {fmt(SAMPLE.units)}
-                    </span>
+                  <li key={r.key} className="flex items-center gap-3 py-2.5 text-sm">
+                    <span className={`h-2.5 w-2.5 shrink-0 rounded-sm ${r.dot}`} aria-hidden="true" />
+                    <span className="flex-1 text-slate-700">{r.label}</span>
+                    <span className="bg-num font-semibold text-slate-900">{fmt(r.n)}</span>
+                    <span className="bg-num w-14 text-right text-slate-500">{pct(r.n / RISK_TOTAL)}</span>
                   </li>
-                </ul>
-              </div>
+                ))}
+              </ul>
+
+              <h4 className="mb-2 mt-6 border-t border-slate-100 pt-5 text-sm font-semibold text-slate-800">Sinyal yang ditemukan</h4>
+              <ul className="space-y-2">
+                {ENGINE.signals.map((s) => (
+                  <li key={s.label} className="flex items-baseline justify-between gap-4 text-sm">
+                    <span className="text-slate-600">{s.label}</span>
+                    <span className="bg-num font-semibold text-slate-900">{fmt(s.n)}</span>
+                  </li>
+                ))}
+                <li className="flex items-baseline justify-between gap-4 text-sm">
+                  <span className="text-slate-600">Unit faskes jadi prioritas investigasi (skor ≥ 60)</span>
+                  <span className="bg-num font-semibold text-slate-900">
+                    {ENGINE.priorityUnits} dari {fmt(SAMPLE.units)}
+                  </span>
+                </li>
+              </ul>
             </div>
 
-            <div className="lg:col-span-2 rounded-2xl border border-slate-100 bg-white shadow-sm p-6 lg:p-8">
-              <div className="flex items-baseline justify-between mb-5">
-                <h3 className="text-base font-bold text-slate-800">Nomor klaim per bulan</h3>
-                <span className="text-xs text-slate-400">2023</span>
+            <div className="rounded-xl border border-slate-200 bg-white p-6 lg:col-span-5">
+              <div className="mb-4 flex items-baseline justify-between gap-4">
+                <h3 className="bg-head text-base font-semibold text-slate-900">Nomor klaim per bulan</h3>
+                <span className="text-xs text-slate-500">2023</span>
               </div>
               <MonthlyChart />
-              <p className="text-[11px] text-slate-400 mt-4">2 klaim lain bertanggal Des 2022, tidak ditampilkan.</p>
+              <p className="mt-4 text-xs text-slate-500">2 klaim lain bertanggal Des 2022, tidak ditampilkan.</p>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6 mt-6">
-            <div className="rounded-2xl border border-slate-100 bg-white shadow-sm p-6">
-              <h3 className="text-base font-bold text-slate-800 mb-4">Diagnosis terbanyak (ICD-10)</h3>
+          <div className="mt-6 grid divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+            <div className="p-6">
+              <h3 className="bg-head mb-4 text-base font-semibold text-slate-900">Diagnosis terbanyak (ICD-10)</h3>
               <div className="space-y-3">
                 {TOP_DX.map((d) => (
                   <div key={d.code}>
-                    <div className="flex items-baseline justify-between mb-1">
-                      <span className="text-xs text-slate-600">
-                        <span className="font-bold text-slate-800">{d.code}</span> · {d.label}
+                    <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
+                      <span className="text-slate-600">
+                        <span className="font-semibold text-slate-900">{d.code}</span> {d.label}
                       </span>
-                      <span className="text-xs font-bold text-slate-700">{fmt(d.n)}</span>
+                      <span className="bg-num font-semibold text-slate-800">{fmt(d.n)}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div className="h-full rounded-full bg-bpjs-500" style={{ width: `${(d.n / TOP_DX[0].n) * 100}%` }} />
+                    <div className="h-1.5 rounded-sm bg-slate-100">
+                      <div className="h-full rounded-sm bg-bpjs-500" style={{ width: `${(d.n / TOP_DX[0].n) * 100}%` }} />
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-white shadow-sm p-6">
-              <h3 className="text-base font-bold text-slate-800 mb-4">Catatan data</h3>
-              <ul className="space-y-3 text-sm text-slate-600">
+            <div className="p-6">
+              <h3 className="bg-head mb-4 text-base font-semibold text-slate-900">Catatan data</h3>
+              <ul className="space-y-3 text-sm leading-relaxed text-slate-600">
                 <li className="flex gap-2.5">
-                  <CheckCircle2 size={16} className="text-bpjs-500 shrink-0 mt-0.5" />
-                  <span>Satu nomor klaim bisa memuat beberapa baris tindakan: {fmt(SAMPLE.rows)} baris untuk {fmt(SAMPLE.uniqueClaims)} nomor klaim.</span>
+                  <Check size={16} className="mt-0.5 shrink-0 text-bpjs-600" aria-hidden="true" />
+                  <span>
+                    Satu nomor klaim bisa memuat beberapa baris tindakan: {fmt(SAMPLE.rows)} baris untuk {fmt(SAMPLE.uniqueClaims)} nomor klaim.
+                  </span>
                 </li>
                 <li className="flex gap-2.5">
-                  <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                  <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
                   <span>Nama faskes dibentuk dari jenis dan kabupaten/kota (mis. Puskesmas + wilayah), bukan fasilitas individual.</span>
                 </li>
                 <li className="flex gap-2.5">
-                  <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                  <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
                   <span>Sampel disusun untuk demonstrasi dan memuat kasus identik serta nilai ekstrem, jadi proporsinya bukan cerminan JKN nasional.</span>
                 </li>
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-bpjs-100 bg-bpjs-50/60 p-6">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center mb-4 shadow-sm">
-                <LockKeyhole size={18} className="text-bpjs-600" />
-              </div>
-              <h3 className="text-base font-bold text-slate-800 mb-2">Privasi</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">
+            <div className="bg-bpjs-50/60 p-6">
+              <h3 className="bg-head mb-3 flex items-center gap-2 text-base font-semibold text-slate-900">
+                <LockKeyhole size={16} className="text-bpjs-600" aria-hidden="true" />
+                Privasi
+              </h3>
+              <p className="text-sm leading-relaxed text-slate-600">
                 Pasien tampil sebagai PAT-xxxxx dan disamarkan pada Jaringan Fraud. Analitik dihitung di browser tanpa mengirim data ke layanan AI eksternal. Halaman ini hanya menampilkan agregat.
               </p>
             </div>
@@ -910,147 +1006,156 @@ export function LandingPage() {
 
           <div className="mt-6">
             <Note>
-              <span className="font-bold">Perlu dibaca dengan benar:</span> angka pada bagian ini adalah keluaran mesin deteksi pada sampel demo, bukan angka akurasi dan bukan temuan fraud yang terbukti. Akurasi diukur terpisah pada data sintetis berkunci jawaban (lihat bagian Validasi).
+              <strong className="font-semibold">Perlu dibaca dengan benar:</strong> angka pada bagian ini adalah keluaran mesin deteksi pada sampel demo, bukan angka akurasi dan bukan temuan fraud yang terbukti. Akurasi diukur terpisah pada data sintetis berkunci jawaban (lihat bagian Validasi).
             </Note>
           </div>
-        </div>
-      </section>
+        </Section>
 
-      {/* Validasi */}
-      <section id="validasi" className="scroll-mt-24 max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
-        <SectionHeader
-          icon={BarChart3}
-          badge="Diuji, Bukan Hanya Diklaim"
-          title="Hasil Pengukuran pada Data Sintetis"
-          desc={`Diuji pada ${fmt(evalEvidence.testClaims)} klaim sintetis berkunci jawaban (100 duplikat disisipkan, ditambah klaim sah yang mirip seperti kontrol kronis dan sesi berulang). Ambang dipilih pada data tuning terpisah, lalu diuji pada data baru.`}
-        />
+        {/* Peran */}
+        <Section id="peran" tint>
+          <SectionHeader title="Setiap peran melihat yang menjadi tugasnya" desc="Menu di aplikasi mengikuti peran aktif. Pilih peran untuk melihat modul yang bisa diakses; ini mengikuti pengaturan menu pada prototype." />
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
-          {VALIDATION_STATS.map((stat) => (
-            <div key={stat.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center">
-              <p className="text-3xl font-extrabold text-bpjs-600 mb-2">{stat.value}</p>
-              <p className="text-sm font-medium text-slate-500 leading-snug">{stat.label}</p>
+          <div role="tablist" aria-label="Pilih peran" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {ROLES.map(({ icon: Icon, name }, i) => (
+              <button
+                key={name}
+                type="button"
+                role="tab"
+                id={`tab-${i}`}
+                aria-selected={roleIdx === i}
+                aria-controls="panel-peran"
+                onClick={() => setRoleIdx(i)}
+                className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors ${
+                  roleIdx === i ? 'border-bpjs-700 bg-bpjs-700 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-bpjs-300'
+                }`}
+              >
+                <Icon size={16} aria-hidden="true" />
+                {name}
+              </button>
+            ))}
+          </div>
+
+          <div id="panel-peran" role="tabpanel" aria-labelledby={`tab-${roleIdx}`} className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <div className="flex flex-col gap-1 border-b border-slate-100 px-6 py-5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+              <p className="text-[15px] leading-relaxed text-slate-700">
+                <strong className="bg-head mr-1.5 text-lg font-semibold text-bpjs-950">{role.name}</strong>
+                {role.summary}
+              </p>
+              <p className="bg-num shrink-0 text-sm text-slate-500">
+                {roleCount} dari {ACCESS_MATRIX.length} modul
+              </p>
             </div>
-          ))}
-        </div>
-
-        <div className="rounded-2xl border border-slate-100 bg-white shadow-sm p-6 lg:p-8 mb-6">
-          <p className="text-sm font-bold text-slate-800 mb-1">Precision setelah belajar dari keputusan verifikator</p>
-          <p className="text-xs text-slate-400 mb-5">Simulasi, verifikator simulasi keliru 5%.</p>
-          <div className="space-y-3 max-w-2xl">
-            {LEARN_ROWS.map((r) => (
-              <div key={r.k} className="flex items-center gap-3">
-                <span className="w-28 text-xs text-slate-500 shrink-0">{r.k === 0 ? 'Aturan awal' : `${r.k} keputusan`}</span>
-                <div className="flex-1 h-2.5 rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full rounded-full bg-bpjs-500" style={{ width: `${r.precision * 100}%` }} />
-                </div>
-                <span className="w-12 text-right text-xs font-bold text-slate-700">{pct(r.precision, 0)}</span>
-              </div>
-            ))}
+            <ul className="grid sm:grid-cols-2">
+              {roleModules.map((m) => (
+                <li key={m.module} className="flex items-center gap-3 border-b border-slate-100 px-6 py-3 text-sm last:border-b-0 sm:odd:border-r">
+                  {m.ok ? <Check size={16} className="shrink-0 text-bpjs-600" aria-label="Dapat diakses" /> : <Minus size={16} className="shrink-0 text-slate-400" aria-label="Tidak dapat diakses" />}
+                  <span className={m.ok ? 'font-medium text-slate-900' : 'text-slate-500'}>{m.module}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
 
-        <Note>
-          <span className="font-bold">Kejujuran soal keterbatasan:</span> semua angka di bagian ini berasal dari data sintetis (terpisah dari klaim sampel BPJS pada demo) dan verifikator simulasi (keliru 5%), bukan data atau verifikator BPJS sungguhan. Pada 200 keputusan, precision naik tetapi recall turun ke ±84% — sebagian duplikat asli ikut tersaring. Deteksi anomali biaya (upcoding) belum divalidasi. Parameter akan dikalibrasi dengan Data Sampel BPJS dan diuji pada fase pilot.
-        </Note>
-      </section>
+          <div className="mt-8">
+            <Note tone="green">
+              <strong className="font-semibold text-slate-900">Tentang akses di mode demo:</strong> peran dipilih di halaman awal tanpa login, agar juri dapat mencoba setiap sudut pandang. Autentikasi akun (Firebase Authentication) dengan sesi yang habis otomatis disiapkan untuk fase pilot, dan pembuatan akun hanya lewat Firebase Console atau Admin SDK, tidak dari browser.
+            </Note>
+          </div>
+        </Section>
 
-      {/* Tim */}
-      <section id="tim" className="scroll-mt-24 bg-slate-50/70 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
-          <SectionHeader
-            icon={UserCheck}
-            badge="Tim Kami"
-            title="Tim Gelombang Utara"
-            desc="Tiga peran yang saling melengkapi, dari konsep hingga eksekusi teknis."
-          />
-          <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        {/* Tim */}
+        <Section id="tim">
+          <SectionHeader title="Tim Gelombang Utara" desc="Tiga peran yang saling melengkapi, dari konsep hingga eksekusi teknis." />
+          <ul className="grid gap-6 sm:grid-cols-3">
             {TEAM.map((m) => (
-              <div key={m.name} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 text-center hover:shadow-lg transition-shadow">
-                <img src={`${base}images/${m.img}`} alt={m.name} className="w-32 h-32 rounded-full object-cover mx-auto mb-4 ring-4 ring-bpjs-100" />
-                <p className="font-bold text-slate-800">{m.name}</p>
-                <p className="text-sm text-slate-500">{m.role}</p>
-              </div>
+              <li key={m.name} className="flex items-center gap-4">
+                <img src={`${base}images/${m.img}`} alt="" className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-bpjs-100" />
+                <div>
+                  <p className="bg-head font-semibold leading-snug text-bpjs-950">{m.name}</p>
+                  <p className="text-sm text-slate-600">{m.role}</p>
+                </div>
+              </li>
             ))}
-          </div>
-        </div>
-      </section>
+          </ul>
+        </Section>
 
-      {/* Kontak */}
-      <section id="kontak" className="scroll-mt-24 max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
-        <SectionHeader
-          icon={Mail}
-          badge="Hubungi Kami"
-          title="Ada Pertanyaan Seputar BILL GATES?"
-          desc="Tim kami siap membantu Anda memahami sistem deteksi klaim ganda JKN."
-        />
+        {/* Kontak */}
+        <Section id="kontak" tint>
+          <SectionHeader title="Ada pertanyaan seputar BILL GATES?" desc="Tim kami siap membantu Anda memahami sistem deteksi klaim ganda JKN." />
 
-        <div className="grid lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-2 space-y-4">
-            {CONTACT_INFO.map(({ icon: Icon, label, value }) => (
-              <div key={label} className="flex items-start gap-4 bg-white border border-slate-100 rounded-2xl p-5">
-                <div className="w-10 h-10 rounded-xl bg-bpjs-50 flex items-center justify-center shrink-0">
-                  <Icon size={18} className="text-bpjs-600" />
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
+            <div className="lg:col-span-5">
+              <dl className="divide-y divide-slate-200 border-y border-slate-200">
+                {CONTACT_INFO.map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="flex gap-4 py-4">
+                    <Icon size={18} className="mt-0.5 shrink-0 text-bpjs-600" aria-hidden="true" />
+                    <div>
+                      <dt className="text-sm text-slate-500">{label}</dt>
+                      <dd className="text-[15px] font-medium text-slate-900">{value}</dd>
+                    </div>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-3 text-xs text-slate-500">Kontak di atas adalah data dummy untuk keperluan demo prototype Healthkathon 2026.</p>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setFormNotice(true);
+              }}
+              className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 lg:col-span-7 lg:p-8"
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="cf-nama" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Nama
+                  </label>
+                  <input id="cf-nama" name="nama" type="text" autoComplete="name" placeholder="Nama Anda" className={inputCls} />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{label}</p>
-                  <p className="text-sm font-bold text-slate-800">{value}</p>
+                  <label htmlFor="cf-email" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Email
+                  </label>
+                  <input id="cf-email" name="email" type="email" autoComplete="email" placeholder="nama@email.com" className={inputCls} />
                 </div>
               </div>
-            ))}
-            <p className="text-xs text-slate-400 px-1">*Kontak di atas adalah data dummy untuk keperluan demo prototype Healthkathon 2026.</p>
+              <div>
+                <label htmlFor="cf-instansi" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Instansi
+                </label>
+                <input id="cf-instansi" name="instansi" type="text" autoComplete="organization" placeholder="Nama instansi / faskes" className={inputCls} />
+              </div>
+              <div>
+                <label htmlFor="cf-pesan" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Pesan
+                </label>
+                <textarea id="cf-pesan" name="pesan" rows={4} placeholder="Tuliskan pertanyaan atau kebutuhan Anda..." className={`${inputCls} resize-none`} />
+              </div>
+              <button
+                type="submit"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-bpjs-700 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-bpjs-800 sm:w-auto"
+              >
+                Kirim Pesan
+              </button>
+              {formNotice && (
+                <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                  Mode demo: formulir ini belum terhubung ke layanan pengiriman, sehingga pesan tidak terkirim.
+                </p>
+              )}
+            </form>
           </div>
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setFormNotice(true);
-            }}
-            className="lg:col-span-3 bg-white border border-slate-100 rounded-2xl p-6 lg:p-8 shadow-sm space-y-4"
-          >
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1.5">Nama</label>
-                <input type="text" placeholder="Nama Anda" className={inputCls} />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1.5">Email</label>
-                <input type="email" placeholder="nama@email.com" className={inputCls} />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1.5">Instansi</label>
-              <input type="text" placeholder="Nama instansi / faskes" className={inputCls} />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1.5">Pesan</label>
-              <textarea rows={4} placeholder="Tuliskan pertanyaan atau kebutuhan Anda..." className={`${inputCls} resize-none`} />
-            </div>
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-6 py-3 bg-bpjs-600 hover:bg-bpjs-700 text-white text-sm font-bold rounded-xl shadow-md shadow-bpjs-600/20 transition-colors flex items-center justify-center gap-2"
-            >
-              Kirim Pesan
-              <ChevronRight size={18} />
-            </button>
-            {formNotice && (
-              <p role="status" className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3">
-                Mode demo: formulir ini belum terhubung ke layanan pengiriman, sehingga pesan tidak terkirim.
-              </p>
-            )}
-          </form>
-        </div>
-      </section>
+        </Section>
+      </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-100 bg-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <footer className="border-t border-slate-200 bg-white">
+        <div className={`${WRAP} flex flex-col items-center justify-between gap-3 py-8 sm:flex-row`}>
           <div className="flex items-center gap-3">
-            <img src={`${base}images/logo.png`} alt="" className="w-8 h-8 rounded-lg object-contain" />
-            <p className="text-sm font-bold text-slate-700">BILL GATES</p>
+            <img src={`${base}images/logo.png`} alt="" className="h-7 w-7 rounded-lg object-contain" />
+            <p className="bg-head font-bold text-bpjs-950">BILL GATES</p>
           </div>
-          <p className="text-xs italic text-slate-400">&ldquo;Detect Smarter, Protect JKN&rdquo;</p>
-          <p className="text-xs text-slate-400">&copy; 2026 Tim Gelombang Utara. Prototype Healthkathon 2026.</p>
+          <p className="text-xs italic text-slate-500">&ldquo;Detect Smarter, Protect JKN&rdquo;</p>
+          <p className="text-xs text-slate-500">&copy; 2026 Tim Gelombang Utara. Prototype Healthkathon 2026.</p>
         </div>
       </footer>
 
@@ -1059,7 +1164,7 @@ export function LandingPage() {
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           aria-label="Kembali ke atas"
-          className="fixed bottom-6 right-6 z-50 w-11 h-11 flex items-center justify-center rounded-full bg-bpjs-600 hover:bg-bpjs-700 text-white shadow-lg shadow-bpjs-600/30 transition-all animate-fade-in"
+          className="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-bpjs-700 text-white shadow-lg transition-colors hover:bg-bpjs-800"
         >
           <ArrowUp size={20} />
         </button>
