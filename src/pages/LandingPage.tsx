@@ -913,7 +913,7 @@ export function LandingPage() {
             ]}
           />
           <p className="mt-4 text-xs text-slate-500">
-            Sumber: Data Sampel BPJS Kesehatan lewat{' '}
+            Sumber: Data Sampel Reguler Edisi 2024, BPJS Kesehatan, lewat{' '}
             <a href="https://data.bpjs-kesehatan.go.id/" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-slate-800">
               Portal Data JKN (data.bpjs-kesehatan.go.id)
             </a>
@@ -1000,7 +1000,7 @@ export function LandingPage() {
                 </li>
                 <li className="flex gap-2.5">
                   <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
-                  <span>Data Sampel BPJS Kesehatan berisi lebih dari 50 ribu baris, sedangkan prototype di Firebase hanya menampung sebagian. Demo memuat {fmt(SAMPLE.rows)} baris yang dipilih dari klaim bernilai di atas Rp0 dengan pola tagihan ganda atau upcoding. Karena itu kasus identik dan nilai ekstrem lebih banyak daripada data aslinya, dan proporsinya bukan cerminan JKN nasional.</span>
+                  <span>Data Sampel Reguler Edisi 2024 memuat sekitar 1,69 juta baris klaim FKRTL dan non-kapitasi, sedangkan prototype di Firebase hanya menampung sebagian kecilnya. Demo memuat {fmt(SAMPLE.rows)} baris yang dipilih dari klaim bernilai di atas Rp0 dengan pola tagihan ganda atau upcoding. Karena itu kasus identik dan nilai ekstrem jauh lebih banyak daripada data aslinya, dan proporsinya bukan cerminan JKN nasional.</span>
                 </li>
               </ul>
             </div>
