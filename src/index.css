@@ -142,6 +142,6 @@
 }
 
 @keyframes dashboardFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(1deg); }
+  0%, 100% { transform: translateY(-16px) rotate(0deg); }
+  50% { transform: translateY(0) rotate(1deg); }
 }
