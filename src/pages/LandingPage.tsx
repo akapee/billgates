@@ -592,7 +592,7 @@ export function LandingPage() {
         <div className={`${WRAP} flex h-14 items-center justify-between gap-6`}>
           <button type="button" onClick={() => scrollToSection('beranda')} className="flex shrink-0 items-center gap-2.5">
             <img src={`${base}images/logo.png`} alt="" className="h-8 w-8 rounded-lg object-contain" />
-            <span className="bg-head text-lg font-extrabold leading-none text-bpjs-950">BILL GATES</span>
+            <span className="bg-head text-lg font-extrabold leading-none"><span className="text-slate-900">BILL</span> <span className="text-bpjs-700">GATES</span></span>
           </button>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigasi utama">
@@ -655,10 +655,10 @@ export function LandingPage() {
         <div id="beranda" className="scroll-mt-14 border-b border-bpjs-100 bg-bpjs-50/60">
           <div className={`${WRAP} grid items-center gap-10 pb-10 pt-10 lg:grid-cols-12 lg:gap-14 lg:pb-14 lg:pt-12`}>
             <div className="lg:col-span-6">
-              <h1 className="bg-head text-5xl font-extrabold leading-none text-bpjs-950 sm:text-6xl lg:text-[4.25rem]">BILL GATES</h1>
+              <h1 className="bg-head text-5xl font-extrabold leading-none text-bpjs-950 sm:text-6xl lg:text-[4.25rem]"><span className="text-slate-900">BILL</span> <span className="text-bpjs-600">GATES</span></h1>
               <p className="mt-3 text-base text-slate-600 sm:text-lg" aria-label="BILLing Ganda dan Anomali TerEliminasi Sistem">
                 <span aria-hidden="true">
-                  <b className="font-bold text-bpjs-700">BILL</b>ing <b className="font-bold text-bpjs-700">G</b>anda &amp; <b className="font-bold text-bpjs-700">A</b>nomali <b className="font-bold text-bpjs-700">T</b>er
+                  <b className="font-bold text-slate-900">BILL</b>ing <b className="font-bold text-bpjs-700">G</b>anda &amp; <b className="font-bold text-bpjs-700">A</b>nomali <b className="font-bold text-bpjs-700">T</b>er
                   <b className="font-bold text-bpjs-700">E</b>liminasi <b className="font-bold text-bpjs-700">S</b>istem
                 </span>
               </p>
@@ -1164,7 +1164,7 @@ export function LandingPage() {
         <div className={`${WRAP} flex flex-col items-center justify-between gap-3 py-8 sm:flex-row`}>
           <div className="flex items-center gap-3">
             <img src={`${base}images/logo.png`} alt="" className="h-7 w-7 rounded-lg object-contain" />
-            <p className="bg-head font-bold text-bpjs-950">BILL GATES</p>
+            <p className="bg-head font-bold"><span className="text-slate-900">BILL</span> <span className="text-bpjs-700">GATES</span></p>
           </div>
           <p className="text-xs italic text-slate-500">&ldquo;Detect Smarter, Protect JKN&rdquo;</p>
           <p className="text-xs text-slate-500">&copy; 2026 Tim Gelombang Utara. Prototype Healthkathon 2026.</p>
