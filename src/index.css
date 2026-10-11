@@ -124,6 +124,10 @@
   .transition-smooth {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
+
+  .dashboard-hero-illustration {
+    animation: dashboardFloat 4.5s ease-in-out infinite;
+  }
 }
 
 @keyframes pulseDot {
@@ -135,4 +139,9 @@
     opacity: 0.6;
     transform: scale(0.85);
   }
+}
+
+@keyframes dashboardFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
 }

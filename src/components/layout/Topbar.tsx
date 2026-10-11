@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Search,
   Bell,
@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   ShieldAlert,
   Crown,
+  LogOut,
 } from 'lucide-react';
 import { cn, formatRelativeTime } from '../../lib/utils';
 import { DemoBadge } from '../ui/Badge';
@@ -141,7 +142,8 @@ interface TopbarProps {
 
 export function Topbar({ onMobileMenuOpen }: TopbarProps) {
   const location = useLocation();
-  const { role } = useAuth();
+  const navigate = useNavigate();
+  const { role, logout } = useAuth();
   const currentRoleConfig = roleConfig.find(r => r.value === role) || roleConfig[3];
   const RoleIcon = currentRoleConfig.icon;
   const [notifOpen, setNotifOpen] = useState(false);
@@ -149,6 +151,10 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
 
   const breadcrumb = routeLabels[location.pathname] || { parent: 'Dashboard', current: 'Pusat Kendali' };
   const unreadCount = notifications.filter(n => !n.read).length;
+  const doLogout = async () => {
+    try { await logout(); }
+    finally { navigate('/', { replace: true }); }
+  };
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -205,7 +211,7 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
       </div>
 
       {/* Peran aktif dipilih di halaman Welcome. */}
-      <div className="flex items-center gap-2.5 pl-3 pr-2 py-1.5 border-l border-slate-200 flex-shrink-0">
+      <div className="flex items-center gap-2.5 pl-3 py-1.5 border-l border-slate-200 flex-shrink-0">
           <div className={cn('w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0', currentRoleConfig.bgColor, 'border')}>
             <RoleIcon size={15} className={currentRoleConfig.color} />
           </div>
@@ -213,6 +219,9 @@ export function Topbar({ onMobileMenuOpen }: TopbarProps) {
             <p className="text-sm font-semibold text-slate-900 leading-none">{currentRoleConfig.label}</p>
             <p className="text-[11px] text-slate-500 mt-0.5 leading-none">{currentRoleConfig.description}</p>
           </div>
+          <button onClick={() => void doLogout()} title="Logout dan kembali ke Welcome" className="ml-1 p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors" aria-label="Logout">
+            <LogOut size={17} />
+          </button>
       </div>
     </header>
   );

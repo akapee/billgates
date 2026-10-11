@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import {
   LayoutDashboard,
@@ -11,7 +11,6 @@ import {
   Search,
   BarChart2,
   Settings,
-  LogOut,
   ChevronLeft,
   ChevronRight,
   X,
@@ -154,8 +153,7 @@ function getBadge(path: string, counts: BadgeCounts): number | undefined {
 }
 
 export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose, badgeCounts }: SidebarProps) {
-  const { role, canDecide, canInvestigate, canViewReports, canManageSystem, logout } = useAuth();
-  const navigate = useNavigate();
+  const { role, canDecide, canInvestigate, canViewReports, canManageSystem } = useAuth();
   
   const visibleSections = navSections.map((sec) => ({
     ...sec,
@@ -169,7 +167,6 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
     })
   })).filter(sec => sec.items.length > 0);
 
-  const doLogout = async () => { onMobileClose(); await logout(); navigate('/', { replace: true }); };
   return (
     <>
       {/* Mobile Overlay */}
@@ -265,25 +262,6 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
             </div>
           ))}
 
-          <div className="mt-3 pt-3 border-t border-white/10 space-y-1">
-            <button
-              type="button"
-              onClick={doLogout}
-              title={collapsed ? 'Keluar' : undefined}
-              className={cn(
-                'sidebar-item group relative w-full text-red-100 hover:bg-red-500/20 hover:text-white',
-                collapsed && 'justify-center px-2'
-              )}
-            >
-              <LogOut size={18} className="flex-shrink-0" />
-              {!collapsed && <span className="flex-1">Keluar</span>}
-              {collapsed && (
-                <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-lg transition-opacity duration-150 border border-slate-700">
-                  Keluar
-                </div>
-              )}
-            </button>
-          </div>
         </nav>
 
         {/* System Status */}
